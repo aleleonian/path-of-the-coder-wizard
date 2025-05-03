@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Network Beast Battle</title>
+</head>
+
+<body>
+    <h1>Network Beast Test</h1>
+    <button id="loadData">Load Data</button>
+
+    <script>
+        document.getElementById('loadData').addEventListener('click', async () => {
+            console.log('Fetching user data...');
+            try {
+                const response = await fetch('https://api.github.com/user'); // 🛑 New endpoint
+                const data = await response.json();
+                console.log('Data loaded:', data);
+            } catch (error) {
+                console.error('Fetch failed:', error);
+            }
+        });
+    </script>
+
+</body>
+
+</html>

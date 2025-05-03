@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Spaghetti Counter</title>
+</head>
+<script>
+    // function createCounter(domElement, onChangeCallback = null) {
+
+    //     if (!document.getElementById(domElement)) {
+    //         return alert(`DOM element ${domElement} does not exist! Aborting this counter creation.`);
+    //     }
+    //     function Counter() {
+    //         const INCREMENT = 1;
+    //         const DECREMENT = 2;
+    //         const RESET = 0;
+
+    //         document.getElementById(domElement).addEventListener('keydown', (e) => {
+    //             switch (e.key) {
+    //                 case '+':
+    //                 case 'ArrowUp':
+    //                     this.inc();
+    //                     break;
+    //                 case '-':
+    //                 case 'ArrowDown':
+    //                     this.dec();
+    //                     break;
+    //                 case 'r':
+    //                 case 'R':
+    //                     this.reset();
+    //                     break;
+    //             }
+    //         });
+    //         this.history = [];
+    //         this.actualCounter = 0;
+    //         this.updateDomElement = (data) => document.getElementById(domElement).textContent = data;
+    //         this.reset = () => {
+    //             this.actualCounter = 0;
+    //             if (onChangeCallback) onChangeCallback();
+    //             this.updateDomElement(this.actualCounter);
+    //             this.history.push(RESET);
+    //         }
+    //         this.inc = () => {
+    //             this.actualCounter = this.actualCounter + 1;
+    //             if (onChangeCallback) onChangeCallback();
+    //             this.updateDomElement(this.actualCounter);
+    //             this.history.push(INCREMENT);
+    //         }
+    //         this.dec = () => {
+    //             this.actualCounter = this.actualCounter - 1;
+    //             if (onChangeCallback) onChangeCallback();
+    //             this.updateDomElement(this.actualCounter);
+    //             this.history.push(DECREMENT);
+    //         }
+    //     };
+    //     return new Counter();
+    // }
+
+    function createCounter(domElement, onChangeCallback) {
+        const INCREMENT = 1;
+        const DECREMENT = 2;
+        const RESET = 0;
+        const element = document.getElementById(domElement);
+
+        if (!element) {
+            alert(`DOM element ${domElement} does not exist! Aborting this counter creation.`);
+            return;
+        }
+
+        const history = [];
+        let count = 0;
+
+        const updateDom = () => element.textContent = count;
+
+        const inc = () => {
+            count++;
+            onChangeCallback?.();
+            history.push(INCREMENT);
+            updateDom();
+        };
+
+        const dec = () => {
+            count--;
+            onChangeCallback?.();
+            history.push(DECREMENT);
+            updateDom();
+        };
+
+        const reset = () => {
+            count = 0;
+            onChangeCallback?.();
+            history.push(RESET);
+            updateDom();
+        };
+
+        element.addEventListener('keydown', (e) => {
+            if (e.key === '+' || e.key === 'ArrowUp') inc();
+            if (e.key === '-' || e.key === 'ArrowDown') dec();
+            if (e.key === 'r' || e.key === 'R') reset();
+        });
+
+        updateDom();
+
+        return { inc, dec, reset, history };
+    }
+
+</script>
+
+<body>
+    <h1>firstCounter</h1>
+    <p id="firstCounter" tabindex="0">0</p>
+    <button onclick="window.myApp.counters.firstCounter.inc()">+</button>
+    <button onclick="window.myApp.counters.firstCounter.dec()">-</button>
+    <button onclick="window.myApp.counters.firstCounter.reset()">R</button>
+    <br>
+    <h1>secondCounter</h1>
+    <p id="secondCounter" tabindex="0">1</p>
+    <button onclick="window.myApp.counters.secondCounter.inc()">+</button>
+    <button onclick="window.myApp.counters.secondCounter.dec()">-</button>
+    <button onclick="window.myApp.counters.secondCounter.reset()">R</button>
+    <script>
+        window.myApp = {
+            counters: {
+                firstCounter: createCounter('firstCounter'),
+                secondCounter: createCounter('secondCounter', () => alert('This counter was updated!'))
+            }
+        }
+    </script>
+</body>
+
+</html>
