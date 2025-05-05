@@ -187,9 +187,19 @@
             }
 
             function reset() {
-                totalStepsCompleted = 0;
-                tasks.length = 0;
-                document.getElementById(tasksDivId).textContent = "";
+                if (confirm('Are you sure you want to reset the dashboard??')) {
+                    totalStepsCompleted = 0;
+                    tasks.length = 0;
+                    document.getElementById(tasksDivId).textContent = "";
+                }
+            }
+
+            function resetCounters() {
+                if (confirm('Are you sure you want to reset the counters??')) {
+                    tasks.forEach(task => {
+                        task.counter.reset();
+                    })
+                }
             }
 
             function update() {
@@ -207,7 +217,7 @@
                 updateTextContent(progressBarDivId, drawProgressBar(percentageStepsCompleted));
             }
 
-            return { addTask, removeTask, update, reset };
+            return { addTask, removeTask, update, reset, resetCounters };
         }
 
         function updateTextContent(divId, data) {
@@ -247,6 +257,7 @@
             Total Steps: <span id="partialStepsCount"></span> / <span id="totalStepsCount"></span>
         </div>
         <br>
+        <button onclick="dashboard.resetCounters()" class="btn btn-warning">Reset counters</button>
         <button onclick="dashboard.reset()" class="btn btn-danger">Reset dashboard</button>
     </main>
 
