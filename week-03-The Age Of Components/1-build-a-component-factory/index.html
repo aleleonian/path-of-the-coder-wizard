@@ -11,7 +11,10 @@
     <title>Component Factory</title>
     <script>
 
-        function createComponent(targetElementArg = null, initialStateArg = "") {
+        const ON = 1;
+        const OFF = 0;
+
+        function createComponent(targetElementArg = null, initialStateArg = undefined) {
 
             let targetElement = targetElementArg;
             let state = initialStateArg;
@@ -20,7 +23,7 @@
             const mount = (targetElementArg = targetElement) => {
                 const targetElHandle = document.getElementById(targetElementArg);
                 if (!targetElHandle) {
-                    const errorMessage = 'Target element does not exist? Aborting.';
+                    const errorMessage = `Target element '${targetElementArg}' does not exist? Aborting.`;
                     alert(errorMessage);
                     throw new Error(errorMessage);
                 }
@@ -59,7 +62,28 @@
             }
         }
 
-        function createCounter(targetElementArg, initialCountArg = 0, onChangeCallback = null) {
+        function createToggleOnOff(targetElementArg = null, initialStateArg = OFF) {
+
+            debugger;
+
+            const genericComponent = createComponent(targetElementArg, initialStateArg);
+
+            genericComponent.mount();
+
+            const on = () => {
+
+                genericComponent.setState(true);
+            };
+
+            const off = () => {
+                genericComponent.setState(false);
+            };
+
+            return { on, off, unmount: genericComponent.unmount };
+        }
+
+
+        function createCounter(targetElementArg, initialCountArg = 0) {
 
             const genericComponent = createComponent(targetElementArg, initialCountArg);
 
@@ -67,17 +91,14 @@
 
             const inc = () => {
                 genericComponent.setState(genericComponent.getState() + 1);
-                onChangeCallback?.();
             };
 
             const dec = () => {
                 genericComponent.setState(genericComponent.getState() - 1);
-                onChangeCallback?.();
             };
 
             const reset = () => {
                 genericComponent.setState(0);
-                onChangeCallback?.();
             };
 
             document.getElementById(targetElementArg)
@@ -103,13 +124,21 @@
         <button onclick="window.myApp.counters.firstCounter.dec()">-</button>
         <button onclick="window.myApp.counters.firstCounter.reset()">R</button>
         <br>
-
+        <!-- Task Input Form -->
+        <h1>Toggle On/Off</h1>
+        <p id="firstToggleOnOff" tabindex="0"></p>
+        <button onclick="window.myApp.switches.firstToggleOnOff.on()">+</button>
+        <button onclick="window.myApp.switches.firstToggleOnOff.off()">-</button>
+        <br>
     </div>
 
     <script>
         window.myApp = {
             counters: {
                 firstCounter: createCounter('firstCounter', 0)
+            },
+            switches: {
+                firstToggleOnOff: createToggleOnOff('firstToggleOnOff', OFF)
             }
         }
     </script>
