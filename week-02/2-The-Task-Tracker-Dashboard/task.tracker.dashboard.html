@@ -132,17 +132,16 @@
             });
         }
 
-        function createDashBoard(numberOfSteps = 10) {
+        function createDashboard(numberOfSteps = 10) {
             const tasks = [];
             const tasksDivId = "tasks";
-            let totalStepsCompleted = 0;
             const partialStepsCountDivId = 'partialStepsCount';
             const totalStepsCountDivId = 'totalStepsCount';
             const percentageStepsCompletedDivId = 'percentageStepsCompleted';
-            const progressBarDivId = 'progressBar'; // Fixed to use correct ID
+            const progressBarDivId = 'progressBar';
 
             function getTotalStepsCompleted() {
-                return totalStepsCompleted;
+                return tasks.reduce((acc, task) => acc + task.counter.getCount(), 0);
             }
 
             function addTask(taskTitle) {
@@ -164,31 +163,17 @@
             function removeTask(taskName) {
                 const desiredIndex = tasks.findIndex(task => task.title === taskName);
                 const taskToBeRemoved = tasks[desiredIndex];
-                totalStepsCompleted = totalStepsCompleted - taskToBeRemoved.counter.getCount()
                 tasks.splice(desiredIndex, 1);
                 document.getElementById(`${taskToBeRemoved.domElement}-task`).remove();
                 update();
             }
 
             function trackTaskProgress(counterInstance) {
-                const latestAction = counterInstance.getHistory()[counterInstance.getHistory().length - 1];
-                switch (latestAction) {
-                    case INCREMENT:
-                        totalStepsCompleted++;
-                        break;
-                    case DECREMENT:
-                        totalStepsCompleted--;
-                        break;
-                    case RESET:
-                        totalStepsCompleted = 0;
-                        break;
-                }
                 update();
             }
 
             function reset() {
                 if (confirm('Are you sure you want to reset the dashboard??')) {
-                    totalStepsCompleted = 0;
                     tasks.length = 0;
                     document.getElementById(tasksDivId).textContent = "";
                 }
@@ -203,7 +188,7 @@
             }
 
             function update() {
-                if (totalStepsCompleted > numberOfSteps) return;
+                if (getTotalStepsCompleted() > numberOfSteps) return;
 
                 const partialStepsCount = tasks.reduce((accumulator, task) => {
                     return accumulator + task.counter.getCount();
@@ -262,7 +247,7 @@
     </main>
 
     <script>
-        const dashboard = createDashBoard();
+        const dashboard = createDashboard();
         dashboard.update();
     </script>
 </body>
