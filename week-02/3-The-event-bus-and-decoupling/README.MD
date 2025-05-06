@@ -32,9 +32,7 @@ The Logger listens and:
 Logs to screen when a task is added or completed
 
 🔧 Step 1: Build the Bus
-js
-Copy
-Edit
+
 function createEventBus() {
   const listeners = {};
 
@@ -54,9 +52,7 @@ function createEventBus() {
   return { on, emit };
 }
 🔧 Step 2: Hook It All Up
-js
-Copy
-Edit
+
 const bus = createEventBus();
 
 // Task Manager emits events
