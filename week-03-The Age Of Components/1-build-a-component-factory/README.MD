@@ -28,9 +28,6 @@ Updates itself when state changes
 🛠 Deliverable:
 A reusable createComponent() function that returns an object with at least:
 
-js
-Copy
-Edit
 {
   mount(targetEl),      // appends the rendered DOM
   setState(newState),   // updates state and re-renders

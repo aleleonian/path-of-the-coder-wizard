@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap 5 JS (for styling, no functionality used) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <title>Component Factory</title>
+    <script>
+
+        function createComponent(targetElementArg = null, initialStateArg = "") {
+
+            let targetElement = targetElementArg;
+            let state = initialStateArg;
+            let componentId;
+
+            const mount = (targetElementArg = targetElement) => {
+                const targetElHandle = document.getElementById(targetElementArg);
+                if (!targetElHandle) {
+                    const errorMessage = 'Target element does not exist? Aborting.';
+                    alert(errorMessage);
+                    throw new Error(errorMessage);
+                }
+                const spanElement = document.createElement('span');
+                componentId = `Comoponent-${Date.now() * Math.ceil(Math.random())}`;
+                spanElement.id = componentId;
+                targetElHandle.appendChild(spanElement);
+                update();
+            }
+
+            const setState = (newState) => {
+                state = newState;
+                update();
+            }
+
+            const getState = () => {
+                return state;
+            }
+
+            const unmount = () => {
+                const componentIdHandle = document.getElementById(componentId);
+                document.getElementById(targetElement).removeChild(componentIdHandle);
+                targetElement = "";
+                componentId = "";
+            }
+
+            const update = () => {
+                document.getElementById(componentId).textContent = getState();
+            }
+
+            return {
+                mount,
+                setState,
+                getState,
+                unmount
+            }
+        }
+
+        function createCounter(targetElementArg, initialCountArg = 0, onChangeCallback = null) {
+
+            const genericComponent = createComponent(targetElementArg, initialCountArg);
+
+            genericComponent.mount();
+
+            const inc = () => {
+                genericComponent.setState(genericComponent.getState() + 1);
+                onChangeCallback?.();
+            };
+
+            const dec = () => {
+                genericComponent.setState(genericComponent.getState() - 1);
+                onChangeCallback?.();
+            };
+
+            const reset = () => {
+                genericComponent.setState(0);
+                onChangeCallback?.();
+            };
+
+            document.getElementById(targetElementArg)
+                .addEventListener('keydown', (e) => {
+                    if (e.key === '+' || e.key === 'ArrowUp') inc();
+                    if (e.key === '-' || e.key === 'ArrowDown') dec();
+                    if (e.key === 'r' || e.key === 'R') reset();
+                });
+
+            return { inc, dec, reset, unmount: genericComponent.unmount };
+        }
+    </script>
+</head>
+
+<body class="bg-light">
+    <div class="container my-5">
+        <h1 class="text-center mb-4">Component Factory</h1>
+
+        <!-- Task Input Form -->
+        <h1>firstCounter</h1>
+        <p id="firstCounter" tabindex="0"></p>
+        <button onclick="window.myApp.counters.firstCounter.inc()">+</button>
+        <button onclick="window.myApp.counters.firstCounter.dec()">-</button>
+        <button onclick="window.myApp.counters.firstCounter.reset()">R</button>
+        <br>
+
+    </div>
+
+    <script>
+        window.myApp = {
+            counters: {
+                firstCounter: createCounter('firstCounter', 0)
+            }
+        }
+    </script>
+
+</body>
+
+</html>
