@@ -8,23 +8,96 @@
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script>
-        function addTask() {
-            const taskText = document.getElementById('taskText').value;
-            if (!taskText || taskText.length < 1) {
-                alert('Input something, dummy!');
-                return;
+
+
+        function createEventBus() {
+            const listeners = {};
+
+            function on(eventType, callback) {
+                if (!listeners[eventType]) {
+                    listeners[eventType] = [];
+                }
+                listeners[eventType].push(callback);
             }
-            debugger;
-            const parentElement = document.getElementById("taskUL");
-            const taskLI = document.createElement('LI');
-            taskLI.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
-            taskLI.textContent = taskText;
-            const taskButton = document.createElement('button');
-            taskButton.classList.add("btn", "btn-success", "btn-sm");
-            taskButton.textContent = 'Done';
-            taskLI.appendChild(taskButton);
-            parentElement.appendChild(taskLI);
+
+            function emit(eventType, payload) {
+                if (listeners[eventType]) {
+                    listeners[eventType].forEach(cb => cb(payload));
+                }
+            }
+
+            return { on, emit };
         }
+
+        const eventBus = createEventBus();
+
+        eventBus.on('task:added', taskCreationEventHandler);
+        eventBus.on('task:completed', taskCompletionEventHandler);
+        eventBus.on('task:completed', taskCounterEventHandler);
+
+        const taskManager = {
+            tasks: [],
+            addTask() {
+                const taskTextInput = document.getElementById('taskText')
+                const taskText = taskTextInput.value;
+                if (!taskText || taskText.length < 1) {
+                    alert('Input something, dummy!');
+                    return;
+                }
+                taskTextInput.value = "";
+                const parentElement = document.getElementById("taskUL");
+                const taskLI = document.createElement('LI');
+                const taskTextSpan = document.createElement('span');
+                taskLI.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+                taskTextSpan.textContent = taskText;
+                taskLI.appendChild(taskTextSpan);
+                const taskButton = document.createElement('button');
+                taskButton.classList.add("btn", "btn-success", "btn-sm");
+                taskButton.textContent = 'Done';
+                taskButton.addEventListener('click', taskButtonHandler);
+                taskLI.appendChild(taskButton);
+                parentElement.appendChild(taskLI);
+                this.tasks.push({ title: taskText, done: false });
+                eventBus.emit("task:added", { title: taskText });
+            },
+            completeTask(title) {
+                const task = this.tasks.find(t => t.title === title);
+                if (task) {
+                    task.done = true;
+                    eventBus.emit("task:completed", { title });
+                }
+            },
+            getFinishedTasksCount() {
+                return this.tasks.reduce((accumulator, task) => {
+                    return accumulator + task.done;
+                }, 0)
+            }
+        };
+
+        function appendToLog(preElement, message) {
+            // Ensure message is treated as plain text
+            preElement.textContent += message + '\n';
+            // Scroll to the bottom to show the latest entry
+            preElement.scrollTop = preElement.scrollHeight;
+        }
+
+        function taskCreationEventHandler(task) {
+            appendToLog(logDisplayHandle, `'Task '${task.title.trim()}' added at ${new Date()}`)
+        }
+        function taskCompletionEventHandler(task) {
+            appendToLog(logDisplayHandle, `'Task '${task.title.trim()}' completed at ${new Date()}`)
+        }
+        function taskCounterEventHandler(task) {
+            document.getElementById('taskCounter').textContent = taskManager.getFinishedTasksCount();
+        }
+        function taskButtonHandler(e) {
+            const parentLI = event.target.parentElement; // The <li> element
+            const taskTextSpan = parentLI.querySelector('span'); // The <span> with task text
+            taskTextSpan.classList.add('text-decoration-line-through');
+            event.target.disabled = true;
+            taskManager.completeTask(taskTextSpan.textContent);
+        }
+
     </script>
 </head>
 
@@ -40,26 +113,23 @@
                         aria-label="Task input">
                 </div>
                 <div class="col-md-4">
-                    <button type="button" class="btn btn-primary w-100" onclick="addTask()">Add Task</button>
+                    <button type="button" class="btn btn-primary w-100" onclick="taskManager.addTask()">Add
+                        Task</button>
                 </div>
             </div>
         </form>
 
         <!-- Task List with Done Button -->
         <ul class="list-group mb-4" id="taskUL">
-            <!-- <li class="list-group-item d-flex justify-content-between align-items-center">
-                Sample Task 1
-                <button type="button" class="btn btn-success btn-sm">Done</button>
-            </li> -->
         </ul>
 
         <!-- Log Display -->
         <h3>Task Log</h3>
-        <pre class="bg-white p-3 border rounded" style="min-height: 150px;">
-            Task 1 added - 2025-05-06 10:00
-            Task 1 marked done - 2025-05-06 10:05
-            Task 2 added - 2025-05-06 10:10
-        </pre>
+        <pre id="logDisplay" class="bg-white p-3 border rounded" style="min-height: 150px;"></pre>
+        <h3>Task Counter</h3>
+        <div>
+            Tasks completed: <span id="taskCounter">0</span>
+        </div>
     </div>
 
     <!-- Bootstrap 5 JS (for styling, no functionality used) -->
@@ -70,9 +140,12 @@
     document.getElementById('taskText').addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             e.preventDefault(); // Prevent form submission
-            addTask() // Trigger button click
+            taskManager.addTask() // Trigger button click
         }
     });
+
+    const logDisplayHandle = document.getElementById('logDisplay');
+
 </script>
 
 </html>
