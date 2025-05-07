@@ -21,6 +21,9 @@
             let componentId;
 
             const mount = (targetElementArg = targetElement) => {
+
+                console.log("gonna mount in: ", targetElementArg);
+
                 const targetElHandle = document.getElementById(targetElementArg);
                 if (!targetElHandle) {
                     const errorMessage = `Target element '${targetElementArg}' does not exist? Aborting.`;
@@ -28,7 +31,7 @@
                     throw new Error(errorMessage);
                 }
                 const spanElement = document.createElement('span');
-                componentId = `Comoponent-${Date.now() * Math.ceil(Math.random())}`;
+                componentId = `Component-${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
                 spanElement.id = componentId;
                 targetElHandle.appendChild(spanElement);
                 update();
@@ -51,6 +54,8 @@
             }
 
             const update = () => {
+                console.log("gonna mount in: ", targetElementArg);
+
                 document.getElementById(componentId).textContent = getState();
             }
 
@@ -64,28 +69,26 @@
 
         function createToggleOnOff(targetElementArg = null, initialStateArg = OFF) {
 
-            debugger;
 
             const genericComponent = createComponent(targetElementArg, initialStateArg);
 
+            console.log("calling createToggleOnOff->genericComponent.mount();");
+
             genericComponent.mount();
 
-            const on = () => {
-
-                genericComponent.setState(true);
+            const toggle = () => {
+                genericComponent.setState(!genericComponent.getState());
             };
 
-            const off = () => {
-                genericComponent.setState(false);
-            };
-
-            return { on, off, unmount: genericComponent.unmount };
+            return { toggle, unmount: genericComponent.unmount, getState: genericComponent.getState };
         }
 
 
         function createCounter(targetElementArg, initialCountArg = 0) {
 
             const genericComponent = createComponent(targetElementArg, initialCountArg);
+
+            console.log("calling createCounter->genericComponent.mount();");
 
             genericComponent.mount();
 
@@ -108,37 +111,43 @@
                     if (e.key === 'r' || e.key === 'R') reset();
                 });
 
-            return { inc, dec, reset, unmount: genericComponent.unmount };
+            return { inc, dec, reset, unmount: genericComponent.unmount, getState: genericComponent.getState };
         }
     </script>
 </head>
 
-<body class="bg-light">
+<body class="bg-light" onload="main()">
     <div class="container my-5">
         <h1 class="text-center mb-4">Component Factory</h1>
 
         <!-- Task Input Form -->
-        <h1>firstCounter</h1>
+        <h1>Counter</h1>
         <p id="firstCounter" tabindex="0"></p>
         <button onclick="window.myApp.counters.firstCounter.inc()">+</button>
         <button onclick="window.myApp.counters.firstCounter.dec()">-</button>
         <button onclick="window.myApp.counters.firstCounter.reset()">R</button>
         <br>
+        <br>
         <!-- Task Input Form -->
         <h1>Toggle On/Off</h1>
         <p id="firstToggleOnOff" tabindex="0"></p>
-        <button onclick="window.myApp.switches.firstToggleOnOff.on()">+</button>
-        <button onclick="window.myApp.switches.firstToggleOnOff.off()">-</button>
+        <button onclick="window.myApp.switches.firstToggleOnOff.toggle()">Toggle</button>
         <br>
     </div>
 
     <script>
-        window.myApp = {
-            counters: {
-                firstCounter: createCounter('firstCounter', 0)
-            },
-            switches: {
-                firstToggleOnOff: createToggleOnOff('firstToggleOnOff', OFF)
+        async function main() {
+            const firstCounter = createCounter('firstCounter', 0);
+
+            const firstToggleOnOff = createToggleOnOff('firstToggleOnOff', false);
+
+            window.myApp = {
+                counters: {
+                    firstCounter: firstCounter
+                },
+                switches: {
+                    firstToggleOnOff: firstToggleOnOff
+                }
             }
         }
     </script>
