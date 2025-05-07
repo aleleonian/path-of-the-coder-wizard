@@ -11,9 +11,6 @@
     <title>Component Factory</title>
     <script>
 
-        const ON = 1;
-        const OFF = 0;
-
         function createComponent(targetElementArg = null, initialStateArg = undefined) {
 
             let targetElement = targetElementArg;
@@ -21,8 +18,6 @@
             let componentId;
 
             const mount = (targetElementArg = targetElement) => {
-
-                console.log("gonna mount in: ", targetElementArg);
 
                 const targetElHandle = document.getElementById(targetElementArg);
                 if (!targetElHandle) {
@@ -54,7 +49,6 @@
             }
 
             const update = () => {
-                console.log("gonna mount in: ", targetElementArg);
 
                 document.getElementById(componentId).textContent = getState();
             }
@@ -67,12 +61,10 @@
             }
         }
 
-        function createToggleOnOff(targetElementArg = null, initialStateArg = OFF) {
+        function createToggleOnOff(targetElementArg = null, initialStateArg = false) {
 
 
             const genericComponent = createComponent(targetElementArg, initialStateArg);
-
-            console.log("calling createToggleOnOff->genericComponent.mount();");
 
             genericComponent.mount();
 
@@ -87,8 +79,6 @@
         function createCounter(targetElementArg, initialCountArg = 0) {
 
             const genericComponent = createComponent(targetElementArg, initialCountArg);
-
-            console.log("calling createCounter->genericComponent.mount();");
 
             genericComponent.mount();
 
