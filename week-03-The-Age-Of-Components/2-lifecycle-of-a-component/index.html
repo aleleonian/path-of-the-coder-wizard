@@ -101,7 +101,7 @@
             }
 
             const unmount = () => {
-                optionalConfigObj?.onUnmount?.();
+                optionalConfigObj?.onUnmount?.(props);
                 const componentIdHandle = document.getElementById(componentId);
                 document.getElementById(targetElement).removeChild(componentIdHandle);
                 targetElement = "";
@@ -132,7 +132,6 @@
             let timer;
 
             const togglerOnMount = () => {
-                let componentId;
                 eventBus.emit(COMPONENT_MOUNT, `Toggler mounted!`);
                 timer = setInterval(() => eventBus.emit(LOG_EVENT, `Toggler timer in action!`), 1000);
             }
@@ -141,9 +140,10 @@
                 eventBus.emit(COMPONENT_UPDATE, `toggler updated! prevState: ${prevState}, newState: ${newState}`);
             }
 
-            const togglerOnUnmount = () => {
+            const togglerOnUnmount = (props) => {
                 eventBus.emit(COMPONENT_UNMOUNT, `Toggler unmounted!`);
                 clearInterval(timer);
+                document.getElementById(props.containerDivId).innerHTML = "";
             }
 
             const renderFn = (state, props) => {
@@ -265,9 +265,11 @@
         <pre id="logDisplay" class="bg-white p-3 border rounded" style="min-height: 150px;"></pre>
 
         <!-- Task Input Form -->
-        <h1>Toggle On/Off</h1>
-        <p id="firstToggleOnOff" tabindex="0"></p>
-        <button id="toggleButton" onclick="window.myApp.switches.firstToggleOnOff.toggle()">Toggle</button>
+        <div id="toggleContainerDiv">
+            <h1>Toggle On/Off</h1>
+            <p id="firstToggleOnOff" tabindex="0"></p>
+            <button id="toggleButton" onclick="window.myApp.switches.firstToggleOnOff.toggle()">Toggle</button>
+        </div>
         <br>
     </div>
 
@@ -289,7 +291,10 @@
             }
             window.myApp.switches = {
                 firstToggleOnOff: createToggleOnOff('firstToggleOnOff', false,
-                    { buttons: [{ buttonId: 'toggleButton', buttonTextColor: 'white', buttonBackgroundColor: 'red' }] }
+                    {
+                        buttons: [{ buttonId: 'toggleButton', buttonTextColor: 'white', buttonBackgroundColor: 'red' }],
+                        containerDivId: 'toggleContainerDiv'
+                    }
                 )
             }
         }
