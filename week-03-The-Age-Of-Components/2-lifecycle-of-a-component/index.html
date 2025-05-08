@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap 5 JS (for styling, no functionality used) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <title>Component Factory</title>
+    <script>
+
+        function createEventBus() {
+
+            const listeners = [];
+
+            function on(eventType, callback) {
+                if (!listeners[eventType]) {
+                    listeners[eventType] = [];
+                }
+                listeners[eventType].push(callback);
+            }
+
+            function emit(eventType, payload) {
+                if (listeners[eventType]) {
+                    listeners[eventType].forEach(cb => cb(payload));
+                }
+            }
+            return { on, emit };
+        }
+
+        const eventBus = createEventBus();
+        const COMPONENT_MOUNT = 1;
+        const COMPONENT_UPDATE = 2;
+        const COMPONENT_UNMOUNT = 3;
+
+        function appendToLog(message) {
+            const logDisplayHandle = window.myApp.handles.logDisplayHandle;
+            // Ensure message is treated as plain text
+            logDisplayHandle.textContent += message + '\n';
+            // Scroll to the bottom to show the latest entry
+            logDisplayHandle.scrollTop = logDisplayHandle.scrollHeight;
+        }
+
+        function componentMountEventHandler(payload) {
+            appendToLog(`${payload} at ${new Date()}`)
+        }
+        function componentUpdateEventHandler(payload) {
+            appendToLog(`${payload} at ${new Date()}`)
+        }
+
+        eventBus.on(COMPONENT_MOUNT, componentMountEventHandler);
+        eventBus.on(COMPONENT_UPDATE, componentUpdateEventHandler);
+        // eventBus.on(COMPONENT_UNMOUNT, componentUnmountEventHandler);
+
+        function createComponent(targetElementArg = null, initialStateArg = undefined, optionalConfigObj = null) {
+
+            let targetElement = targetElementArg;
+            let state = initialStateArg;
+            let componentId;
+
+            const getComponentId = () => {
+                return componentId;
+            }
+
+            const mount = (targetElementArg = targetElement) => {
+
+                const targetElHandle = document.getElementById(targetElementArg);
+                if (!targetElHandle) {
+                    const errorMessage = `Target element '${targetElementArg}' does not exist? Aborting.`;
+                    alert(errorMessage);
+                    throw new Error(errorMessage);
+                }
+                const spanElement = document.createElement('span');
+                componentId = `Component-${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
+                spanElement.id = componentId;
+                targetElHandle.appendChild(spanElement);
+                optionalConfigObj?.onMount?.();
+                render();
+            }
+
+            const setState = (newState) => {
+                const oldState = state;
+                state = newState;
+                optionalConfigObj?.onUpdate?.(oldState, newState);
+                render();
+            }
+
+            const getState = () => {
+                return state;
+            }
+
+            const unmount = () => {
+                optionalConfigObj?.onUnmount?.();
+                const componentIdHandle = document.getElementById(componentId);
+                document.getElementById(targetElement).removeChild(componentIdHandle);
+                targetElement = "";
+                componentId = "";
+            }
+
+            const render = () => {
+                document.getElementById(componentId).textContent = getState();
+            }
+
+            return {
+                mount,
+                setState,
+                getState,
+                getComponentId,
+                unmount
+            }
+        }
+
+        // function createToggleOnOff(targetElementArg = null, initialStateArg = false) {
+
+
+        //     const genericComponent = createComponent(targetElementArg, initialStateArg);
+
+        //     genericComponent.mount();
+
+        //     const toggle = () => {
+        //         genericComponent.setState(!genericComponent.getState());
+        //     };
+
+        //     return { toggle, unmount: genericComponent.unmount, getState: genericComponent.getState };
+        // }
+
+
+        function createCounter(targetElementArg, initialCountArg = 0) {
+
+
+            const counterOnMount = () => {
+                let componentId;
+                console.log("mounting counter!");
+                eventBus.emit(COMPONENT_MOUNT, `A counter has mounted!`);
+            }
+
+            const counterOnUpdate = (prevState, newState) => {
+                console.log("counterOnUpdate!");
+                console.log('prevState->', prevState);
+                console.log('newState->', newState);
+                eventBus.emit(COMPONENT_UPDATE, `Counter updated! prevState: ${prevState}, newState: ${newState}`);
+            }
+
+            const counterOnUnmount = () => {
+                console.log("un-mounting counter!");
+            }
+
+            const optionalConfigObj = {
+                onMount: counterOnMount,
+                onUpdate: counterOnUpdate,
+                onUnmount: counterOnUnmount
+            }
+
+            const genericComponent = createComponent(targetElementArg, initialCountArg, optionalConfigObj);
+
+            componentId = genericComponent.getComponentId();
+
+            genericComponent.mount();
+
+            const inc = () => {
+                genericComponent.setState(genericComponent.getState() + 1);
+            };
+
+            const dec = () => {
+                genericComponent.setState(genericComponent.getState() - 1);
+            };
+
+            const reset = () => {
+                genericComponent.setState(0);
+            };
+
+            document.getElementById(targetElementArg)
+                .addEventListener('keydown', (e) => {
+                    if (e.key === '+' || e.key === 'ArrowUp') inc();
+                    if (e.key === '-' || e.key === 'ArrowDown') dec();
+                    if (e.key === 'r' || e.key === 'R') reset();
+                });
+
+            return { inc, dec, reset, unmount: genericComponent.unmount, getState: genericComponent.getState, getComponentId: genericComponent.getComponentId() };
+        }
+    </script>
+</head>
+
+<body class="bg-light" onload="main()">
+    <div class="container my-5">
+        <h1 class="text-center mb-4">Component Factory</h1>
+
+        <!-- Task Input Form -->
+        <h1>Counter</h1>
+        <p id="firstCounter" tabindex="0"></p>
+        <button onclick="window.myApp.counters.firstCounter.inc()">+</button>
+        <button onclick="window.myApp.counters.firstCounter.dec()">-</button>
+        <button onclick="window.myApp.counters.firstCounter.reset()">R</button>
+        <br>
+        <br>
+        <h3>Log</h3>
+        <pre id="logDisplay" class="bg-white p-3 border rounded" style="min-height: 150px;"></pre>
+
+        <!-- Task Input Form -->
+        <!-- <h1>Toggle On/Off</h1>
+        <p id="firstToggleOnOff" tabindex="0"></p>
+        <button onclick="window.myApp.switches.firstToggleOnOff.toggle()">Toggle</button>
+        <br> -->
+    </div>
+
+    <script>
+        async function main() {
+
+            console.log("running main!");
+
+            const counterOnMount = () => {
+                console.log("mounting counter!");
+                eventBus.emit(COMPONENT_MOUNT, "A counter has mounted!");
+            }
+
+            const counterOnUpdate = (prevState, newState) => {
+                console.log("counterOnUpdate!");
+                console.log('prevState->', prevState);
+                console.log('newState->', newState);
+            }
+
+            const counterOnUnmount = () => {
+                console.log("un-mounting counter!");
+            }
+
+            window.myApp = {
+                handles: {
+                    logDisplayHandle: document.getElementById('logDisplay')
+                },
+            }
+
+            window.myApp.counters = {
+                firstCounter: createCounter('firstCounter', 0)
+            }
+        }
+
+    </script>
+
+</body>
+
+</html>
