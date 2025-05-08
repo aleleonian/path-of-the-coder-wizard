@@ -34,6 +34,7 @@
         const COMPONENT_MOUNT = 1;
         const COMPONENT_UPDATE = 2;
         const COMPONENT_UNMOUNT = 3;
+        const LOG_EVENT = 4;
 
         function appendToLog(message) {
             const logDisplayHandle = window.myApp.handles.logDisplayHandle;
@@ -52,16 +53,21 @@
         function componentUnmountEventHandler(payload) {
             appendToLog(`${payload} at ${new Date()}`)
         }
+        function logEventHandler(payload) {
+            appendToLog(`${payload} at ${new Date()}`)
+        }
 
         eventBus.on(COMPONENT_MOUNT, componentMountEventHandler);
         eventBus.on(COMPONENT_UPDATE, componentUpdateEventHandler);
         eventBus.on(COMPONENT_UNMOUNT, componentUnmountEventHandler);
+        eventBus.on(LOG_EVENT, logEventHandler);
 
         function createComponent(targetElementArg = null, initialStateArg = undefined, optionalConfigObj = null) {
 
             let targetElement = targetElementArg;
             let state = initialStateArg;
             let componentId;
+            let props = optionalConfigObj.props ?? null;
 
             const getComponentId = () => {
                 return componentId;
@@ -80,14 +86,14 @@
                 spanElement.id = componentId;
                 targetElHandle.appendChild(spanElement);
                 optionalConfigObj?.onMount?.();
-                render();
+                render(state, props);
             }
 
             const setState = (newState) => {
                 const oldState = state;
                 state = newState;
                 optionalConfigObj?.onUpdate?.(oldState, newState);
-                render();
+                render(state, props);
             }
 
             const getState = () => {
@@ -103,7 +109,13 @@
             }
 
             const render = () => {
-                document.getElementById(componentId).textContent = getState();
+
+                if (optionalConfigObj.renderFn) {
+                    document.getElementById(componentId).innerHTML = optionalConfigObj.renderFn(state, props);
+                }
+                else {
+                    document.getElementById(componentId).innerHTML = getState();
+                }
             }
 
             return {
@@ -115,47 +127,91 @@
             }
         }
 
-        // function createToggleOnOff(targetElementArg = null, initialStateArg = false) {
+        function createToggleOnOff(targetElementArg = null, initialStateArg = false, props = null) {
+
+            let timer;
+
+            const togglerOnMount = () => {
+                let componentId;
+                eventBus.emit(COMPONENT_MOUNT, `Toggler mounted!`);
+                timer = setInterval(() => eventBus.emit(LOG_EVENT, `Toggler timer in action!`), 1000);
+            }
+
+            const togglerOnUpdate = (prevState, newState) => {
+                eventBus.emit(COMPONENT_UPDATE, `toggler updated! prevState: ${prevState}, newState: ${newState}`);
+            }
+
+            const togglerOnUnmount = () => {
+                eventBus.emit(COMPONENT_UNMOUNT, `Toggler unmounted!`);
+                clearInterval(timer);
+            }
+
+            const renderFn = (state, props) => {
+                if (props) {
+                    if (props.buttons) {
+                        props.buttons.forEach(button => {
+                            document.getElementById(button.buttonId).style.backgroundColor = button.buttonBackgroundColor;
+                            document.getElementById(button.buttonId).style.color = button.buttonTextColor;
+                        })
+                    }
+                }
+                return state;
+            }
+
+            const optionalConfigObj = {
+                onMount: togglerOnMount,
+                onUpdate: togglerOnUpdate,
+                onUnmount: togglerOnUnmount,
+                renderFn
+            }
+
+            if (props) optionalConfigObj.props = props;
+
+            const genericComponent = createComponent(targetElementArg, initialStateArg, optionalConfigObj);
+
+            genericComponent.mount();
+
+            const toggle = () => {
+                genericComponent.setState(!genericComponent.getState());
+            };
+
+            return { toggle, unmount: genericComponent.unmount, getState: genericComponent.getState };
+        }
 
 
-        //     const genericComponent = createComponent(targetElementArg, initialStateArg);
-
-        //     genericComponent.mount();
-
-        //     const toggle = () => {
-        //         genericComponent.setState(!genericComponent.getState());
-        //     };
-
-        //     return { toggle, unmount: genericComponent.unmount, getState: genericComponent.getState };
-        // }
-
-
-        function createCounter(targetElementArg, initialCountArg = 0) {
-
+        function createCounter(targetElementArg, initialCountArg = 0, props = null) {
 
             const counterOnMount = () => {
                 let componentId;
-                console.log("mounting counter!");
                 eventBus.emit(COMPONENT_MOUNT, `Counter mounted!`);
             }
 
             const counterOnUpdate = (prevState, newState) => {
-                console.log("counterOnUpdate!");
-                console.log('prevState->', prevState);
-                console.log('newState->', newState);
                 eventBus.emit(COMPONENT_UPDATE, `Counter updated! prevState: ${prevState}, newState: ${newState}`);
             }
 
             const counterOnUnmount = () => {
-                console.log("un-mounting counter!");
                 eventBus.emit(COMPONENT_UNMOUNT, `Counter unmounted!`);
+            }
+
+            const renderFn = (state, props) => {
+                if (props.labels) {
+                    Object.keys(props.labels).forEach(label => {
+                        document.getElementById(label).textContent = props.labels[label];
+                    });
+                }
+                const spanElement = document.createElement('span');
+                spanElement.textContent = state;
+                return spanElement.outerHTML;
             }
 
             const optionalConfigObj = {
                 onMount: counterOnMount,
                 onUpdate: counterOnUpdate,
-                onUnmount: counterOnUnmount
+                onUnmount: counterOnUnmount,
+                renderFn
             }
+            if (props) optionalConfigObj.props = props;
 
             const genericComponent = createComponent(targetElementArg, initialCountArg, optionalConfigObj);
 
@@ -194,49 +250,47 @@
         <!-- Task Input Form -->
         <h1>Counter</h1>
         <p id="firstCounter" tabindex="0"></p>
-        <button onclick="window.myApp.counters.firstCounter.inc()">+</button>
-        <button onclick="window.myApp.counters.firstCounter.dec()">-</button>
-        <button onclick="window.myApp.counters.firstCounter.reset()">R</button>
+        <button onclick="window.myApp.counters.firstCounter.inc()">
+            <span id="increaseLabel"></span>
+        </button>
+        <button onclick="window.myApp.counters.firstCounter.dec()">
+            <span id="decreaseLabel"></span>
+        </button>
+        <button onclick="window.myApp.counters.firstCounter.reset()">
+            <span id="resetLabel"></span>
+        </button>
         <br>
         <br>
         <h3>Log</h3>
         <pre id="logDisplay" class="bg-white p-3 border rounded" style="min-height: 150px;"></pre>
 
         <!-- Task Input Form -->
-        <!-- <h1>Toggle On/Off</h1>
+        <h1>Toggle On/Off</h1>
         <p id="firstToggleOnOff" tabindex="0"></p>
-        <button onclick="window.myApp.switches.firstToggleOnOff.toggle()">Toggle</button>
-        <br> -->
+        <button id="toggleButton" onclick="window.myApp.switches.firstToggleOnOff.toggle()">Toggle</button>
+        <br>
     </div>
 
     <script>
         async function main() {
-
-            console.log("running main!");
-
-            const counterOnMount = () => {
-                console.log("mounting counter!");
-                eventBus.emit(COMPONENT_MOUNT, "A counter has mounted!");
-            }
-
-            const counterOnUpdate = (prevState, newState) => {
-                console.log("counterOnUpdate!");
-                console.log('prevState->', prevState);
-                console.log('newState->', newState);
-            }
-
-            const counterOnUnmount = () => {
-                console.log("un-mounting counter!");
-            }
-
             window.myApp = {
                 handles: {
                     logDisplayHandle: document.getElementById('logDisplay')
                 },
             }
-
             window.myApp.counters = {
-                firstCounter: createCounter('firstCounter', 0)
+                firstCounter: createCounter('firstCounter', 0, {
+                    labels: {
+                        increaseLabel: '+',
+                        decreaseLabel: '-',
+                        resetLabel: 'Reset'
+                    }
+                })
+            }
+            window.myApp.switches = {
+                firstToggleOnOff: createToggleOnOff('firstToggleOnOff', false,
+                    { buttons: [{ buttonId: 'toggleButton', buttonTextColor: 'white', buttonBackgroundColor: 'red' }] }
+                )
             }
         }
 
