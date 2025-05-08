@@ -49,10 +49,13 @@
         function componentUpdateEventHandler(payload) {
             appendToLog(`${payload} at ${new Date()}`)
         }
+        function componentUnmountEventHandler(payload) {
+            appendToLog(`${payload} at ${new Date()}`)
+        }
 
         eventBus.on(COMPONENT_MOUNT, componentMountEventHandler);
         eventBus.on(COMPONENT_UPDATE, componentUpdateEventHandler);
-        // eventBus.on(COMPONENT_UNMOUNT, componentUnmountEventHandler);
+        eventBus.on(COMPONENT_UNMOUNT, componentUnmountEventHandler);
 
         function createComponent(targetElementArg = null, initialStateArg = undefined, optionalConfigObj = null) {
 
@@ -133,7 +136,7 @@
             const counterOnMount = () => {
                 let componentId;
                 console.log("mounting counter!");
-                eventBus.emit(COMPONENT_MOUNT, `A counter has mounted!`);
+                eventBus.emit(COMPONENT_MOUNT, `Counter mounted!`);
             }
 
             const counterOnUpdate = (prevState, newState) => {
@@ -145,6 +148,7 @@
 
             const counterOnUnmount = () => {
                 console.log("un-mounting counter!");
+                eventBus.emit(COMPONENT_UNMOUNT, `Counter unmounted!`);
             }
 
             const optionalConfigObj = {
