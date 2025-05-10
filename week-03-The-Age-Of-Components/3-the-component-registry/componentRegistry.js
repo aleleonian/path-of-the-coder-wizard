@@ -12,6 +12,17 @@ export function createComponentRegistry() {
         })
     }
 
+    function sendMessageTo(componentId, command) {
+        const desiredComponent = get(componentId);
+        if (desiredComponent) {
+            const desiredCommand = desiredComponent.instance[command];
+            if (desiredCommand && typeof desiredCommand === 'function') {
+                desiredCommand();
+            }
+        }
+        else return false;
+    }
+
     function unmountAll() {
         registry.forEach(component => {
             component.instance.unmount();
@@ -49,7 +60,8 @@ export function createComponentRegistry() {
         getAll,
         unregister,
         unmountAll,
-        broadcastToAll
+        broadcastToAll,
+        sendMessageTo
     }
 }
 
