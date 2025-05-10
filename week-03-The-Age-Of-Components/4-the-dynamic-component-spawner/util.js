@@ -5,3 +5,7 @@ export function appendToLog(message) {
     // Scroll to the bottom to show the latest entry
     logDisplayHandle.scrollTop = logDisplayHandle.scrollHeight;
 }
+
+export function getRandomUUID() {
+    return crypto.randomUUID();
+}
