@@ -4,10 +4,9 @@ import { eventBus, EVENTS } from './eventBus.js';
 import { componentRegistry } from './componentRegistry.js';
 
 function createComponent(targetId = null, initialState = undefined, config = null) {
-
     let tid = targetId;
     let state = initialState;
-    let componentId = `Component-${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
+    let componentId = `Component-${crypto.randomUUID()}`;
     let props = config.props ?? null;
 
     const mount = (targetId = tid) => {
@@ -111,19 +110,20 @@ export function createToggleOnOff(targetId = null, initialState = false, props =
 
     togglerComponentId = genericComponent.componentId;
 
-    genericComponent.mount();
-
     const toggle = () => {
         genericComponent.setState(!genericComponent.getState());
     };
 
-    togglerInstance = { toggle, unmount: genericComponent.unmount, getState: genericComponent.getState };
+    togglerInstance = { toggle, unmount: genericComponent.unmount, getState: genericComponent.getState, componentId: togglerComponentId };
+
+    genericComponent.mount();
 
     return togglerInstance;
 }
 
 
 export function createCounter(targetId, initialState = 0, props = null) {
+
 
     let counterInstance, counterComponentId;
 
@@ -169,8 +169,6 @@ export function createCounter(targetId, initialState = 0, props = null) {
 
     counterComponentId = genericComponent.componentId;
 
-    genericComponent.mount();
-
     const inc = () => {
         genericComponent.setState(genericComponent.getState() + 1);
     };
@@ -190,7 +188,9 @@ export function createCounter(targetId, initialState = 0, props = null) {
             if (e.key === 'r' || e.key === 'R') reset();
         });
 
-    counterInstance = { inc, dec, reset, unmount: genericComponent.unmount, getState: genericComponent.getState };
+    counterInstance = { inc, dec, reset, unmount: genericComponent.unmount, getState: genericComponent.getState, componentId: counterComponentId };
+
+    genericComponent.mount();
 
     return counterInstance;
 }
@@ -206,11 +206,18 @@ export function main() {
     window.myApp.counters = {
         firstCounter: createCounter('firstCounter', 0, {
             labels: {
-                increaseLabel: '+',
-                decreaseLabel: '-',
-                resetLabel: 'Reset'
+                increaseLabel1: '+',
+                decreaseLabel1: '-',
+                resetLabel1: 'R'
             }
-        })
+        }),
+        secondCounter: createCounter('secondCounter', 0, {
+            labels: {
+                increaseLabel2: 'Increase',
+                decreaseLabel2: 'Decrease',
+                resetLabel2: 'Reset'
+            }
+        }),
     }
     window.myApp.switches = {
         firstToggleOnOff: createToggleOnOff('firstToggleOnOff', false,

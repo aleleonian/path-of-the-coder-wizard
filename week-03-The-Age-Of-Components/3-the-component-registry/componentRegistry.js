@@ -2,6 +2,22 @@ export function createComponentRegistry() {
 
     const registry = new Map();
 
+    function broadcastToAll(command) {
+        registry.forEach(component => {
+            if (component.instance[command]) {
+                if (typeof component.instance[command] === 'function') {
+                    component.instance[command]();
+                }
+            }
+        })
+    }
+
+    function unmountAll() {
+        registry.forEach(component => {
+            component.instance.unmount();
+        })
+    }
+
     function register(id, component) {
         if (!id || !component) {
             throw new Error("You must provide an id and a component, dammit!");
@@ -31,7 +47,9 @@ export function createComponentRegistry() {
         register,
         get,
         getAll,
-        unregister
+        unregister,
+        unmountAll,
+        broadcastToAll
     }
 }
 
