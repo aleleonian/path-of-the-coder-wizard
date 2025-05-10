@@ -63,7 +63,7 @@ function createComponent(targetId = null, initialState = undefined, config = nul
 
 export function createToggleOnOff(targetId = null, initialState = false, props = null) {
 
-    let timer;
+    let timer, togglerInstance, togglerComponentId;
 
     const togglerOnMount = (props) => {
         if (props) {
@@ -75,7 +75,11 @@ export function createToggleOnOff(targetId = null, initialState = false, props =
             }
         }
         eventBus.emit(EVENTS.COMPONENT_MOUNT, `Toggler mounted!`);
+
         timer = setInterval(() => eventBus.emit(EVENTS.LOG_EVENT, `Toggler timer in action!`), 1000);
+
+        componentRegistry.register(genericComponent.componentId, { type: "toggler", instance: togglerInstance });
+
     }
 
     const togglerOnUpdate = (prevState, newState) => {
@@ -86,6 +90,8 @@ export function createToggleOnOff(targetId = null, initialState = false, props =
         eventBus.emit(EVENTS.COMPONENT_UNMOUNT, `Toggler unmounted!`);
         clearInterval(timer);
         document.getElementById(props.containerDivId).innerHTML = "";
+        componentRegistry.unregister(togglerComponentId);
+
     }
 
     const renderFn = (state, props) => {
@@ -103,19 +109,23 @@ export function createToggleOnOff(targetId = null, initialState = false, props =
 
     const genericComponent = createComponent(targetId, initialState, config);
 
+    togglerComponentId = genericComponent.componentId;
+
     genericComponent.mount();
 
     const toggle = () => {
         genericComponent.setState(!genericComponent.getState());
     };
 
-    return { toggle, unmount: genericComponent.unmount, getState: genericComponent.getState };
+    togglerInstance = { toggle, unmount: genericComponent.unmount, getState: genericComponent.getState };
+
+    return togglerInstance;
 }
 
 
 export function createCounter(targetId, initialState = 0, props = null) {
 
-    let counterInstance;
+    let counterInstance, counterComponentId;
 
     const counterOnMount = (props) => {
         if (props && props.labels) {
@@ -134,7 +144,8 @@ export function createCounter(targetId, initialState = 0, props = null) {
     }
 
     const counterOnUnmount = () => {
-        componentRegistry.unregister(genericComponent.componentId);
+        // componentRegistry.unregister(genericComponent.componentId);
+        componentRegistry.unregister(counterComponentId);
 
         eventBus.emit(EVENTS.COMPONENT_UNMOUNT, `Counter unmounted!`);
     }
@@ -155,6 +166,8 @@ export function createCounter(targetId, initialState = 0, props = null) {
     if (props) config.props = props;
 
     const genericComponent = createComponent(targetId, initialState, config);
+
+    counterComponentId = genericComponent.componentId;
 
     genericComponent.mount();
 
