@@ -2,6 +2,10 @@ export function createComponentRegistry() {
 
     const registry = new Map();
 
+    function getByType(desiredType) {
+        return getAll().filter(component => component.type === desiredType);
+    }
+
     function broadcastToAll(command) {
         registry.forEach(component => {
             if (component.instance[command]) {
@@ -61,7 +65,8 @@ export function createComponentRegistry() {
         unregister,
         unmountAll,
         broadcastToAll,
-        sendMessageTo
+        sendMessageTo,
+        getByType
     }
 }
 
