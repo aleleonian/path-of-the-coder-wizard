@@ -24,6 +24,7 @@ export function createComponentRegistry() {
     }
 
     function unregister(id) {
+        debugger;
         registry.delete(id);
     }
 

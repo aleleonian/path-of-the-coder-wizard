@@ -115,12 +115,17 @@ export function createToggleOnOff(targetId = null, initialState = false, props =
 
 export function createCounter(targetId, initialState = 0, props = null) {
 
+    let counterInstance;
+
     const counterOnMount = (props) => {
         if (props && props.labels) {
             Object.keys(props.labels).forEach(label => {
                 document.getElementById(label).textContent = props.labels[label];
             });
         }
+
+        componentRegistry.register(genericComponent.componentId, { type: "counter", instance: counterInstance });
+
         eventBus.emit(EVENTS.COMPONENT_MOUNT, `Counter mounted!`);
     }
 
@@ -129,6 +134,8 @@ export function createCounter(targetId, initialState = 0, props = null) {
     }
 
     const counterOnUnmount = () => {
+        componentRegistry.unregister(genericComponent.componentId);
+
         eventBus.emit(EVENTS.COMPONENT_UNMOUNT, `Counter unmounted!`);
     }
 
@@ -170,9 +177,7 @@ export function createCounter(targetId, initialState = 0, props = null) {
             if (e.key === 'r' || e.key === 'R') reset();
         });
 
-    const counterInstance = { inc, dec, reset, unmount: genericComponent.unmount, getState: genericComponent.getState };
-
-    componentRegistry.register(genericComponent.componentId, { type: "counter", instance: counterInstance })
+    counterInstance = { inc, dec, reset, unmount: genericComponent.unmount, getState: genericComponent.getState };
 
     return counterInstance;
 }
