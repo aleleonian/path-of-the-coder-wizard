@@ -20,7 +20,6 @@ export function destroyComponent(componentId) {
         // destroy the ui
         document.getElementById(component.instance.parentId).remove();
         // remove the reference from window.myApp[whatever]
-        debugger;
         switch (component.type) {
             case 'counter':
                 delete window.myApp.counters[component.instance.counterName];
