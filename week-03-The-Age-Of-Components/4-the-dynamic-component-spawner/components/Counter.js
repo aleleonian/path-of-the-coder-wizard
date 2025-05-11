@@ -1,11 +1,33 @@
 import { createComponent } from "./Base.js";
 import { getRandomUUID } from "../util.js";
 
+let randomString;
+
 const COUNTER_NAME_STRING_PREPEND = 'counter-name-';
 const TARGET_ID_STRING_PREPEND = 'counter-target-id-';
 const INCREASE_LABEL_STRING_PREPEND = 'increase-label-';
 const DECREASE_LABEL_STRING_PREPEND = 'decrease-label-';
 const RESET_LABEL_STRING_PREPEND = 'reset-label-';
+
+function getTargetId() {
+    return `${TARGET_ID_STRING_PREPEND}${randomString}`;
+}
+
+function getCounterName() {
+    return `${COUNTER_NAME_STRING_PREPEND}${randomString}`;
+}
+
+function getIncreaseLabelString() {
+    return `${INCREASE_LABEL_STRING_PREPEND}${randomString}`;
+}
+
+function getDecreaseLabelString() {
+    return `${DECREASE_LABEL_STRING_PREPEND}${randomString}`
+}
+
+function getResetLabelString() {
+    return `${RESET_LABEL_STRING_PREPEND}${randomString}`
+}
 
 function createCounter(targetId, initialState = 0, props = null) {
 
@@ -80,12 +102,12 @@ function createCounter(targetId, initialState = 0, props = null) {
     return counterInstance;
 }
 
-function createCounterUI(randomString) {
+function createCounterUI() {
     const parentDiv = document.createElement('div');
     const h1Element = document.createElement('h1');
     h1Element.textContent = "Counter Element";
-    const targetId = `${TARGET_ID_STRING_PREPEND}${randomString}`;
-    const counterName = `${COUNTER_NAME_STRING_PREPEND}${randomString}`;
+    const targetId = getTargetId();
+    const counterName = getCounterName();
 
     const pElement = document.createElement('p');
     pElement.id = targetId;
@@ -94,23 +116,23 @@ function createCounterUI(randomString) {
     // inc button
     const incButtonElement = document.createElement('button');
     const incButtonSpanElement = document.createElement('span');
-    incButtonSpanElement.id = `${INCREASE_LABEL_STRING_PREPEND}${randomString}`;
+    incButtonSpanElement.id = getIncreaseLabelString();
     incButtonElement.appendChild(incButtonSpanElement);
-    incButtonElement.setAttribute('onclick', `window.myApp.counters.${counterName}.inc()`);
+    incButtonElement.setAttribute('onclick', `window.myApp.counters['${counterName}'].inc()`);
 
     // dec button
     const decButtonElement = document.createElement('button');
     const decButtonSpanElement = document.createElement('span');
-    decButtonSpanElement.id = `${DECREASE_LABEL_STRING_PREPEND}${randomString}`;
+    decButtonSpanElement.id = getDecreaseLabelString();
     decButtonElement.appendChild(decButtonSpanElement);
-    decButtonElement.setAttribute('onclick', `window.myApp.counters.${counterName}.dec()`);
+    decButtonElement.setAttribute('onclick', `window.myApp.counters['${counterName}'].dec()`);
 
     // reset button
     const resetButtonElement = document.createElement('button');
     const resetButtonSpanElement = document.createElement('span');
-    resetButtonSpanElement.id = `${RESET_LABEL_STRING_PREPEND}${randomString}`;
+    resetButtonSpanElement.id = getResetLabelString();
     resetButtonElement.appendChild(resetButtonSpanElement);
-    resetButtonElement.setAttribute('onclick', `window.myApp.counters.${counterName}.reset()`);
+    resetButtonElement.setAttribute('onclick', `window.myApp.counters['${counterName}'].reset()`);
 
     parentDiv.appendChild(h1Element);
     parentDiv.appendChild(pElement);
@@ -123,15 +145,16 @@ function createCounterUI(randomString) {
 }
 export function buildCounter() {
     // build the actual html, append it.
-    const randomString = getRandomUUID();
-    const counterElement = createCounterUI(randomString);
+    randomString = getRandomUUID();
+    const counterElement = createCounterUI();
     document.getElementById('component-container').appendChild(counterElement);
-    const targetId = `${TARGET_ID_STRING_PREPEND}${randomString}`;
-    createCounter(targetId, 0, {
+    const targetId = getTargetId();
+    window.myApp.counters = window.myApp.counters || {};
+    window.myApp.counters[getCounterName()] = createCounter(targetId, 0, {
         labels: {
-            [`${INCREASE_LABEL_STRING_PREPEND}${randomString}`]: '+',
-            [`${DECREASE_LABEL_STRING_PREPEND}${randomString}`]: '-',
-            [`${RESET_LABEL_STRING_PREPEND}${randomString}`]: 'R'
+            [getIncreaseLabelString()]: '+',
+            [getDecreaseLabelString()]: '-',
+            [getResetLabelString()]: 'R'
         }
     })
 }

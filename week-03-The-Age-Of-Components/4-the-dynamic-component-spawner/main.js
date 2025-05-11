@@ -88,7 +88,7 @@ function main() {
 
     window.myApp = {
         handles: {
-            logDisplayHandle: document.getElementById('logDisplay')
+            logDisplayHandle: document.getElementById('activity-log')
         },
     }
     // document.getElementById('component-type')?.focus();
@@ -131,3 +131,6 @@ function main() {
 }
 window.main = main;
 window.summonComponent = summonComponent;
+window.eventBus = eventBus;
+window.EVENTS = EVENTS;
+window.myApp = {};
