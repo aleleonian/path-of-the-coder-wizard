@@ -59,3 +59,7 @@ export function addRegistryRow(id, type, actionsHtml) {
 
     tableBody.appendChild(row);
 }
+
+export function clearActivityLog() {
+    document.getElementById('activity-log').textContent = '';
+}
