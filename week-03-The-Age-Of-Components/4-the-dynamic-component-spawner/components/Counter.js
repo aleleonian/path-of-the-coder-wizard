@@ -45,8 +45,6 @@ function createCounter({ targetId, parentId }, initialState = 0, props = null) {
             });
         }
 
-        componentRegistry.register(genericComponent.componentId, { type: "counter", instance: counterInstance });
-
         window.myApp.eventBus.emit(window.myApp.EVENTS.COMPONENT_MOUNT, `Counter mounted!`);
     }
 
@@ -55,9 +53,6 @@ function createCounter({ targetId, parentId }, initialState = 0, props = null) {
     }
 
     const counterOnUnmount = () => {
-        // componentRegistry.unregister(genericComponent.componentId);
-        componentRegistry.unregister(counterComponentId);
-
         window.myApp.eventBus.emit(window.myApp.EVENTS.COMPONENT_UNMOUNT, `Counter unmounted!`);
     }
 
@@ -112,6 +107,8 @@ function createCounter({ targetId, parentId }, initialState = 0, props = null) {
     };
 
     genericComponent.mount();
+
+    componentRegistry.register(genericComponent.componentId, { type: "counter", instance: counterInstance });
 
     return counterInstance;
 }
