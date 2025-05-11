@@ -1,9 +1,11 @@
 
 import { eventBus, EVENTS } from './eventBus.js';
 
-import { componentRegistry } from './componentRegistry.js';
+import { componentRegistry } from './components/Registry.js';
 
 import { buildCounter } from './components/Counter.js';
+
+import { destroyComponent } from './util.js';
 
 function createToggleOnOff(targetId = null, initialState = false, props = null) {
 
@@ -84,17 +86,14 @@ function summonComponent(e) {
 }
 
 function main() {
-    window.myApp = window.myApp || {};
-
-    window.myApp = {
-        handles: {
-            logDisplayHandle: document.getElementById('activity-log')
-        },
-    }
+    window.myApp = {};
+    window.myApp.handles = {};
+    window.myApp.summonComponent = summonComponent;
+    window.myApp.handles.logDisplayHandle = document.getElementById('activity-log')
+    window.myApp.eventBus = eventBus;
+    window.myApp.EVENTS = EVENTS;
+    window.myApp.destroyComponent = destroyComponent;
     // document.getElementById('component-type')?.focus();
-
-    document.getElementById('summon-form').addEventListener('submit', summonComponent);
-
     // window.myApp.counters = {
     //     firstCounter: createCounter('firstCounter', 0, {
     //         labels: {
@@ -128,9 +127,10 @@ function main() {
         option.text = item;
         select.appendChild(option);
     });
+
+
+
+    document.getElementById('summon-form').addEventListener('submit', window.myApp.summonComponent);
+
 }
 window.main = main;
-window.summonComponent = summonComponent;
-window.eventBus = eventBus;
-window.EVENTS = EVENTS;
-window.myApp = {};

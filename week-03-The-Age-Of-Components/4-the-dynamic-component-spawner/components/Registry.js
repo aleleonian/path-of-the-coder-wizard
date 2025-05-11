@@ -1,3 +1,5 @@
+import { addComponent, removeComponent } from "./RegisteredComponentsTable.js";
+
 export function createComponentRegistry() {
 
     const registry = new Map();
@@ -45,6 +47,8 @@ export function createComponentRegistry() {
             throw new Error("You already added that component, godammit!");
         }
         registry.set(id, component);
+        // add it to the registered component's list
+        addComponent(component)
     }
 
     function get(id) {
@@ -60,6 +64,10 @@ export function createComponentRegistry() {
 
     function unregister(id) {
         registry.delete(id);
+        //we gotta remove the corresponding entry from
+        //the RegisteredComponentsTable
+        removeComponent(id);
+
     }
 
     return {

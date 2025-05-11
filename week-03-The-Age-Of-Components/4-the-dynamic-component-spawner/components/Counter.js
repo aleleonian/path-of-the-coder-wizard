@@ -1,8 +1,10 @@
 import { createComponent } from "./Base.js";
 import { getRandomUUID } from "../util.js";
+import { componentRegistry } from "./Registry.js";
 
 let randomString;
 
+const CONTAINER_NAME_STRING_PREPEND = 'counter-container-';
 const COUNTER_NAME_STRING_PREPEND = 'counter-name-';
 const TARGET_ID_STRING_PREPEND = 'counter-target-id-';
 const INCREASE_LABEL_STRING_PREPEND = 'increase-label-';
@@ -29,8 +31,10 @@ function getResetLabelString() {
     return `${RESET_LABEL_STRING_PREPEND}${randomString}`
 }
 
-function createCounter(targetId, initialState = 0, props = null) {
-
+function getComponentParentName() {
+    return `${CONTAINER_NAME_STRING_PREPEND}${randomString}`
+}
+function createCounter({ targetId, parentId }, initialState = 0, props = null) {
 
     let counterInstance, counterComponentId;
 
@@ -43,18 +47,18 @@ function createCounter(targetId, initialState = 0, props = null) {
 
         componentRegistry.register(genericComponent.componentId, { type: "counter", instance: counterInstance });
 
-        eventBus.emit(EVENTS.COMPONENT_MOUNT, `Counter mounted!`);
+        window.myApp.eventBus.emit(window.myApp.EVENTS.COMPONENT_MOUNT, `Counter mounted!`);
     }
 
     const counterOnUpdate = (prevState, newState) => {
-        eventBus.emit(EVENTS.COMPONENT_UPDATE, `Counter updated! prevState: ${prevState}, newState: ${newState}`);
+        window.myApp.eventBus.emit(window.myApp.EVENTS.COMPONENT_UPDATE, `Counter updated! prevState: ${prevState}, newState: ${newState}`);
     }
 
     const counterOnUnmount = () => {
         // componentRegistry.unregister(genericComponent.componentId);
         componentRegistry.unregister(counterComponentId);
 
-        eventBus.emit(EVENTS.COMPONENT_UNMOUNT, `Counter unmounted!`);
+        window.myApp.eventBus.emit(window.myApp.EVENTS.COMPONENT_UNMOUNT, `Counter unmounted!`);
     }
 
     const renderFn = (state, props) => {
@@ -95,7 +99,17 @@ function createCounter(targetId, initialState = 0, props = null) {
             if (e.key === 'r' || e.key === 'R') reset();
         });
 
-    counterInstance = { inc, dec, reset, unmount: genericComponent.unmount, getState: genericComponent.getState, componentId: counterComponentId };
+    counterInstance = {
+        inc,
+        dec,
+        reset,
+        unmount: genericComponent.unmount,
+        getState: genericComponent.getState,
+        componentId: counterComponentId,
+        targetElId: targetId,
+        parentId,
+        counterName: getCounterName()
+    };
 
     genericComponent.mount();
 
@@ -103,54 +117,65 @@ function createCounter(targetId, initialState = 0, props = null) {
 }
 
 function createCounterUI() {
-    const parentDiv = document.createElement('div');
-    const h1Element = document.createElement('h1');
-    h1Element.textContent = "Counter Element";
-    const targetId = getTargetId();
-    const counterName = getCounterName();
+    try {
+        const parentDiv = document.createElement('div');
+        parentDiv.id = getComponentParentName();
+        const h1Element = document.createElement('h1');
+        h1Element.textContent = "Counter Element";
+        const targetId = getTargetId();
+        const counterName = getCounterName();
 
-    const pElement = document.createElement('p');
-    pElement.id = targetId;
-    pElement.setAttribute('tabindex', 0);
+        const pElement = document.createElement('p');
+        pElement.id = targetId;
+        pElement.setAttribute('tabindex', 0);
 
-    // inc button
-    const incButtonElement = document.createElement('button');
-    const incButtonSpanElement = document.createElement('span');
-    incButtonSpanElement.id = getIncreaseLabelString();
-    incButtonElement.appendChild(incButtonSpanElement);
-    incButtonElement.setAttribute('onclick', `window.myApp.counters['${counterName}'].inc()`);
+        // inc button
+        const incButtonElement = document.createElement('button');
+        const incButtonSpanElement = document.createElement('span');
+        incButtonSpanElement.id = getIncreaseLabelString();
+        incButtonElement.appendChild(incButtonSpanElement);
+        incButtonElement.setAttribute('onclick', `window.myApp.counters['${counterName}'].inc()`);
 
-    // dec button
-    const decButtonElement = document.createElement('button');
-    const decButtonSpanElement = document.createElement('span');
-    decButtonSpanElement.id = getDecreaseLabelString();
-    decButtonElement.appendChild(decButtonSpanElement);
-    decButtonElement.setAttribute('onclick', `window.myApp.counters['${counterName}'].dec()`);
+        // dec button
+        const decButtonElement = document.createElement('button');
+        const decButtonSpanElement = document.createElement('span');
+        decButtonSpanElement.id = getDecreaseLabelString();
+        decButtonElement.appendChild(decButtonSpanElement);
+        decButtonElement.setAttribute('onclick', `window.myApp.counters['${counterName}'].dec()`);
 
-    // reset button
-    const resetButtonElement = document.createElement('button');
-    const resetButtonSpanElement = document.createElement('span');
-    resetButtonSpanElement.id = getResetLabelString();
-    resetButtonElement.appendChild(resetButtonSpanElement);
-    resetButtonElement.setAttribute('onclick', `window.myApp.counters['${counterName}'].reset()`);
+        // reset button
+        const resetButtonElement = document.createElement('button');
+        const resetButtonSpanElement = document.createElement('span');
+        resetButtonSpanElement.id = getResetLabelString();
+        resetButtonElement.appendChild(resetButtonSpanElement);
+        resetButtonElement.setAttribute('onclick', `window.myApp.counters['${counterName}'].reset()`);
 
-    parentDiv.appendChild(h1Element);
-    parentDiv.appendChild(pElement);
-    parentDiv.appendChild(incButtonElement);
-    parentDiv.appendChild(decButtonElement);
-    parentDiv.appendChild(resetButtonElement);
+        parentDiv.appendChild(h1Element);
+        parentDiv.appendChild(pElement);
+        parentDiv.appendChild(incButtonElement);
+        parentDiv.appendChild(decButtonElement);
+        parentDiv.appendChild(resetButtonElement);
 
-    return parentDiv;
+        return parentDiv;
+    }
+    catch (error) {
+        alert(`Error during createCounterUI: ${error}`);
+        return false;
+    }
 
 }
 export function buildCounter() {
-    // build the actual html, append it.
+    // create the component's UI.
     randomString = getRandomUUID();
     const counterElement = createCounterUI();
+    if (!createCounterUI()) return false;
     document.getElementById('component-container').appendChild(counterElement);
     const targetId = getTargetId();
+    const parentId = getComponentParentName();
     window.myApp.counters = window.myApp.counters || {};
-    window.myApp.counters[getCounterName()] = createCounter(targetId, 0, {
+
+    // create the component
+    window.myApp.counters[getCounterName()] = createCounter({ targetId, parentId }, 0, {
         labels: {
             [getIncreaseLabelString()]: '+',
             [getDecreaseLabelString()]: '-',

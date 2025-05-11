@@ -36,6 +36,10 @@ export function createComponent(targetId = null, initialState = undefined, confi
         componentId = "";
     }
 
+    const getType = () => {
+        return props.type;
+    }
+    
     const render = () => {
 
         if (config.renderFn) {
