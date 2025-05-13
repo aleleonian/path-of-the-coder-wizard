@@ -32,15 +32,11 @@ export function removeComponent(componentId) {
 }
 
 export function filterRCTable() {
+    const filterValue = document.getElementById('component-type-filter').value;
     const tableId = 'registry-table';
     clearTable(tableId);
-    const filterValue = document.getElementById('component-type-filter').value;
-    const allRegisteredComponents = window.myApp.registry.getAll();
-    allRegisteredComponents.filter(component => component.type === filterValue).forEach(component => addComponent(tableId, component));
-
-    // get a list of all the components
-    // iterate them
-    // if their type equals filterValue
-    // then add them to the table
-
+    let desiredTypesOfComponents;
+    if (filterValue === "-1") desiredTypesOfComponents = window.myApp.registry.getAll();
+    else desiredTypesOfComponents = window.myApp.registry.getByType(filterValue);
+    desiredTypesOfComponents.forEach(component => addComponent(tableId, component));
 }
