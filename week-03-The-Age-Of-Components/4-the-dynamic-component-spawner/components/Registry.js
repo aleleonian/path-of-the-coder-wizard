@@ -48,7 +48,7 @@ export function createComponentRegistry() {
         }
         registry.set(id, component);
         // add it to the registered component's list
-        addComponent(component)
+        addComponent('registry-table', component)
     }
 
     function get(id) {

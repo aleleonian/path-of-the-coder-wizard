@@ -10,6 +10,16 @@ export function getRandomUUID() {
     return crypto.randomUUID();
 }
 
+export function fillSelect(whichSelect, optionsArray) {
+    const desiredSelect = document.getElementById(whichSelect);
+    optionsArray.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.toLowerCase();
+        option.text = item;
+        desiredSelect.appendChild(option);
+        // filterSelect.appendChild(option);
+    });
+}
 export function destroyComponent(componentId) {
     if (confirm('Do you really want to destroy this component?')) {
         // registry.delete
@@ -45,16 +55,20 @@ export function removeRegistryRow(componentId) {
         }
     });
 }
+export function clearTable(tableId) {
+    const tableBody = document.querySelector(`#${tableId} tbody`);
+    tableBody.innerHTML = ""
+}
 
-export function addRegistryRow(id, type, actionsHtml) {
-    const tableBody = document.querySelector('#registry-table tbody');
+export function addRegistryRow(tableId, componentId, componentType, actionsHtml) {
+    const tableBody = document.querySelector(`#${tableId} tbody`);
     const row = document.createElement('tr');
 
     const tdId = document.createElement('td');
-    tdId.textContent = id;
+    tdId.textContent = componentId;
 
     const tdType = document.createElement('td');
-    tdType.textContent = type;
+    tdType.textContent = componentType;
 
     const tdActions = document.createElement('td');
     tdActions.appendChild(actionsHtml);

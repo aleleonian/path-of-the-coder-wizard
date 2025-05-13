@@ -3,9 +3,11 @@ import { eventBus, EVENTS } from './eventBus.js';
 
 import { componentRegistry } from './components/Registry.js';
 
+import { filterRCTable } from './components/RegisteredComponentsTable.js';
+
 import { buildCounter } from './components/Counter.js';
 
-import { destroyComponent, clearActivityLog, resetComponent } from './util.js';
+import { fillSelect, destroyComponent, clearActivityLog, resetComponent } from './util.js';
 
 function summonComponent(e) {
     e.preventDefault();
@@ -32,6 +34,8 @@ function main() {
     window.myApp.destroyComponent = destroyComponent;
     window.myApp.resetComponent = resetComponent;
     window.myApp.clearActivityLog = clearActivityLog;
+    window.myApp.filterRCTable = filterRCTable;
+    window.myApp.registry = componentRegistry;
     // document.getElementById('component-type')?.focus();
     // window.myApp.counters = {
     //     firstCounter: createCounter('firstCounter', 0, {
@@ -58,14 +62,10 @@ function main() {
     //     )
     // }
     const validOptions = ['Counter', 'Toggle', 'Clock'];
-    const select = document.getElementById('component-type-select');
+    fillSelect('component-type-select', validOptions);
+    fillSelect('component-type-filter', validOptions);
 
-    validOptions.forEach(item => {
-        const option = document.createElement('option');
-        option.value = item.toLowerCase();
-        option.text = item;
-        select.appendChild(option);
-    });
+
 
 
 

@@ -54,6 +54,10 @@
                         <!-- Filled dynamically -->
                     </tbody>
                 </table>
+                <label for="component-type" class="form-label">Filter by:</label>
+                <select class="form-select" id="component-type-filter" onchange="window.myApp.filterRCTable()">
+                    <option value="-1">Select an option</option>
+                </select>
             </div>
         </div>
 
@@ -61,7 +65,8 @@
         <div class="card mb-4">
             <div class="card-header">
                 📜 Activity Log
-                <button class="btn btn-sm btn-outline-danger" onclick="window.myApp.clearActivityLog()">Clear Log</button>
+                <button class="btn btn-sm btn-outline-danger" onclick="window.myApp.clearActivityLog()">Clear
+                    Log</button>
             </div>
             <div class="card-body">
                 <pre id="activity-log" class="bg-white p-3 border rounded"
