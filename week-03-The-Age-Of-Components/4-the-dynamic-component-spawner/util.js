@@ -11,7 +11,7 @@ export function getRandomUUID() {
 }
 
 export function destroyComponent(componentId) {
-    if (confirm('Do you really want to destroy this element?')) {
+    if (confirm('Do you really want to destroy this component?')) {
         // registry.delete
         const component = window.componentRegistry.get(componentId);
         window.componentRegistry.unregister(componentId);
@@ -25,6 +25,12 @@ export function destroyComponent(componentId) {
                 delete window.myApp.counters[component.instance.counterName];
                 break;
         }
+    }
+}
+export function resetComponent(componentId) {
+    if (confirm('Do you really want to reset this component?')) {
+        const component = window.componentRegistry.get(componentId);
+        component.instance.reset();
     }
 }
 

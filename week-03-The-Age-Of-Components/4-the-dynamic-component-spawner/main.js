@@ -5,7 +5,7 @@ import { componentRegistry } from './components/Registry.js';
 
 import { buildCounter } from './components/Counter.js';
 
-import { destroyComponent, clearActivityLog } from './util.js';
+import { destroyComponent, clearActivityLog, resetComponent } from './util.js';
 
 function summonComponent(e) {
     e.preventDefault();
@@ -30,6 +30,7 @@ function main() {
     window.myApp.eventBus = eventBus;
     window.myApp.EVENTS = EVENTS;
     window.myApp.destroyComponent = destroyComponent;
+    window.myApp.resetComponent = resetComponent;
     window.myApp.clearActivityLog = clearActivityLog;
     // document.getElementById('component-type')?.focus();
     // window.myApp.counters = {
