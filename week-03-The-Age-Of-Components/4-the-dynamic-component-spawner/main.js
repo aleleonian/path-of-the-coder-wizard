@@ -7,6 +7,8 @@ import { filterRCTable } from './components/RegisteredComponentsTable.js';
 
 import { buildCounter } from './components/Counter.js';
 
+import { buildToggle } from './components/Toggle.js';
+
 import { fillSelect, destroyComponent, clearActivityLog, resetComponent } from './util.js';
 
 function summonComponent(e) {
@@ -14,6 +16,7 @@ function summonComponent(e) {
     const selectedComponentType = document.getElementById('component-type-select').value;
     switch (selectedComponentType) {
         case 'toggle':
+            buildToggle();
             break;
         case 'counter':
             buildCounter();
