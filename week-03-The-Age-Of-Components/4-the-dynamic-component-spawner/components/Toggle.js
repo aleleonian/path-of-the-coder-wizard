@@ -34,6 +34,7 @@ function createToggleOnOff({ targetId = null, parentDiv = null }, initialState =
                 props.buttons.forEach(button => {
                     document.getElementById(button.buttonId).style.backgroundColor = button.buttonBackgroundColor;
                     document.getElementById(button.buttonId).style.color = button.buttonTextColor;
+                    document.getElementById(button.buttonId).textContent = button.buttonText;
                 })
             }
         }
@@ -96,6 +97,9 @@ function createToggleUI() {
         pElement.setAttribute('tabindex', 0);
         const buttonElement = document.createElement('button');
         buttonElement.id = getToggleButtonId();
+        const counterName = getToggleName();
+        buttonElement.setAttribute('onclick', `window.myApp.toggles['${counterName}'].toggle()`);
+
         parentDiv.appendChild(h1Element);
         parentDiv.appendChild(pElement);
         parentDiv.appendChild(buttonElement);
@@ -118,6 +122,6 @@ export function buildToggle() {
     if (!window.myApp.toggles) window.myApp.toggles = {};
     // create the component
     window.myApp.toggles[getToggleName()] = createToggleOnOff({ targetId, parentId }, 0, {
-        buttons: [{ buttonId: getToggleButtonId(), buttonTextColor: 'white', buttonBackgroundColor: 'red' }]
+        buttons: [{ buttonId: getToggleButtonId(), buttonTextColor: 'white', buttonBackgroundColor: 'red', buttonText: 'Toggle!' }]
     })
 }

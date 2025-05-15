@@ -165,7 +165,7 @@ export function buildCounter() {
     // create the component's UI.
     randomString = getRandomUUID();
     const counterElement = createCounterUI();
-    if (!createCounterUI()) return false;
+    if (!counterElement) return false;
     document.getElementById('component-container').appendChild(counterElement);
     const targetId = getTargetId();
     const parentId = getComponentParentName();
