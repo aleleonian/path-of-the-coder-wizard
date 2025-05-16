@@ -24,7 +24,7 @@ function getComponentParentName() {
     return `${CONTAINER_NAME_STRING_PREPEND}${randomString}`
 }
 
-function createToggleOnOff({ targetId = null, parentDiv = null, customComponentId = null }, initialState = false, props = null) {
+function createToggleOnOff({ targetId = null, parentId = null, customComponentId = null }, initialState = false, props = null) {
 
     let timer, toggleInstance, toggleComponentId;
 
@@ -53,7 +53,7 @@ function createToggleOnOff({ targetId = null, parentDiv = null, customComponentI
     const toggleOnUnmount = (props) => {
         window.myApp.eventBus.emit(window.myApp.EVENTS.COMPONENT_UNMOUNT, `Toggle unmounted!`);
         clearInterval(timer);
-        document.getElementById(parentDiv).innerHTML = "";
+        document.getElementById(parentId).innerHTML = "";
         componentRegistry.unregister(toggleComponentId);
 
     }

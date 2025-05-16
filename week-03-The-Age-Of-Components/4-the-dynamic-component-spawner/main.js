@@ -9,6 +9,8 @@ import { buildCounter } from './components/Counter.js';
 
 import { buildToggle } from './components/Toggle.js';
 
+import { buildClock } from './components/Clock.js';
+
 import { fillSelect, destroyComponent, clearActivityLog, resetComponent } from './util.js';
 
 function summonComponent(e) {
@@ -23,6 +25,7 @@ function summonComponent(e) {
             if (!buildCounter(customId)) alert('Could not create Counter!');
             break;
         case 'clock':
+            if (!buildClock(customId)) alert('Could not create Clock!');
             break;
 
     }
