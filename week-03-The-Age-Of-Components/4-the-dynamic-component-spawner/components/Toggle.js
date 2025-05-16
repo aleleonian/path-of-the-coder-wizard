@@ -124,7 +124,7 @@ export function buildToggle(customComponentId = false) {
     randomString = getRandomUUID();
     const toggleElement = createToggleUI();
     if (!toggleElement) return false;
-    document.getElementById('component-container').appendChild(toggleElement);
+    document.getElementById(window.myApp.componentContainerId).appendChild(toggleElement);
     const targetId = getTargetId();
     const parentId = getComponentParentName();
     if (!window.myApp.toggles) window.myApp.toggles = {};

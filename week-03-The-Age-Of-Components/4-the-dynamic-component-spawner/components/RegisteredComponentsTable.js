@@ -33,8 +33,7 @@ export function removeComponent(componentId) {
 
 export function filterRCTable() {
     const filterValue = document.getElementById('component-type-filter').value;
-    const tableId = 'registry-table';
-    clearTable(tableId);
+    clearTable(window.myApp.registryTableId);
     let desiredTypesOfComponents;
     if (filterValue === "-1") desiredTypesOfComponents = window.myApp.registry.getAll();
     else desiredTypesOfComponents = window.myApp.registry.getByType(filterValue);

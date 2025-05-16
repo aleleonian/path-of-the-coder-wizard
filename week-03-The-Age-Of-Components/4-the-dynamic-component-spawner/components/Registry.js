@@ -1,4 +1,4 @@
-import { addComponent, removeComponent } from "./RegisteredComponentsTable.js";
+import { addComponent } from "./RegisteredComponentsTable.js";
 
 export function createComponentRegistry() {
 
@@ -69,8 +69,10 @@ export function createComponentRegistry() {
         registry.delete(id);
         //we gotta remove the corresponding entry from
         //the RegisteredComponentsTable
-        removeComponent(id);
-
+        // removeComponent(id);
+    }
+    function unregisterAll() {
+        getAll().forEach(component => registry.delete(component.instance.componentId));
     }
 
     return {
@@ -78,6 +80,7 @@ export function createComponentRegistry() {
         get,
         getAll,
         unregister,
+        unregisterAll,
         unmountAll,
         broadcastToAll,
         sendMessageTo,

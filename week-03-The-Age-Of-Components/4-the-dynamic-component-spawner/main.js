@@ -11,7 +11,7 @@ import { buildToggle } from './components/Toggle.js';
 
 import { buildClock } from './components/Clock.js';
 
-import { fillSelect, destroyComponent, clearActivityLog, resetComponent } from './util.js';
+import { fillSelect, destroyComponent, clearActivityLog, resetComponent, resetAllCounters, killAll } from './util.js';
 
 function summonComponent(e) {
     e.preventDefault();
@@ -27,6 +27,8 @@ function summonComponent(e) {
         case 'clock':
             if (!buildClock(customId)) alert('Could not create Clock!');
             break;
+        default:
+            alert('Choose something, dummy!');
 
     }
 }
@@ -42,39 +44,16 @@ function main() {
     window.myApp.resetComponent = resetComponent;
     window.myApp.clearActivityLog = clearActivityLog;
     window.myApp.filterRCTable = filterRCTable;
+    window.myApp.resetAllCounters = resetAllCounters;
+    window.myApp.killAll = killAll;
     window.myApp.registry = componentRegistry;
-    // document.getElementById('component-type')?.focus();
-    // window.myApp.counters = {
-    //     firstCounter: createCounter('firstCounter', 0, {
-    //         labels: {
-    //             increaseLabel1: '+',
-    //             decreaseLabel1: '-',
-    //             resetLabel1: 'R'
-    //         }
-    //     }),
-    //     secondCounter: createCounter('secondCounter', 0, {
-    //         labels: {
-    //             increaseLabel2: 'Increase',
-    //             decreaseLabel2: 'Decrease',
-    //             resetLabel2: 'Reset'
-    //         }
-    //     }),
-    // }
-    // window.myApp.switches = {
-    //     firstToggleOnOff: createToggleOnOff('firstToggleOnOff', false,
-    //         {
-    //             buttons: [{ buttonId: 'toggleButton', buttonTextColor: 'white', buttonBackgroundColor: 'red' }],
-    //             containerDivId: 'toggleContainerDiv'
-    //         }
-    //     )
-    // }
+    window.myApp.componentContainerId = 'component-container';
+    window.myApp.registryTableId = 'registry-table';
+
+    document.getElementById('component-type')?.focus();
     const validOptions = ['Counter', 'Toggle', 'Clock'];
     fillSelect('component-type-select', validOptions);
     fillSelect('component-type-filter', validOptions);
-
-
-
-
 
     document.getElementById('summon-form').addEventListener('submit', window.myApp.summonComponent);
 

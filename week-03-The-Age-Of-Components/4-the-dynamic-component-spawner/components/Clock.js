@@ -117,12 +117,12 @@ export function buildClock(customComponentId = false) {
     randomString = getRandomUUID();
     const clockElement = createClockUI();
     if (!clockElement) return false;
-    document.getElementById('component-container').appendChild(clockElement);
+    document.getElementById(window.myApp.componentContainerId).appendChild(clockElement);
     const targetId = getTargetId();
     const parentId = getComponentParentName();
     if (!window.myApp.clocks) window.myApp.clocks = {};
     // create the component
-    const aClock = createClock({ targetId, parentId, customComponentId }, false, null);
+    const aClock = createClock({ targetId, parentId, customComponentId }, "--:--:--", null);
     if (!aClock) alert('Could not create clock!');
     else window.myApp.clocks[getClockName()] = aClock;
     return true;

@@ -174,7 +174,7 @@ export function buildCounter(customComponentId = false) {
     randomString = getRandomUUID();
     const counterElement = createCounterUI();
     if (!counterElement) return false;
-    document.getElementById('component-container').appendChild(counterElement);
+    document.getElementById(window.myApp.componentContainerId).appendChild(counterElement);
     const targetId = getTargetId();
     const parentId = getComponentParentName();
     window.myApp.counters = window.myApp.counters || {};
