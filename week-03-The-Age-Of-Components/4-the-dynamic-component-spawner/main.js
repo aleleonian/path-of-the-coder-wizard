@@ -14,12 +14,13 @@ import { fillSelect, destroyComponent, clearActivityLog, resetComponent } from '
 function summonComponent(e) {
     e.preventDefault();
     const selectedComponentType = document.getElementById('component-type-select').value;
+    const customId = document.getElementById('custom-id').value;
     switch (selectedComponentType) {
         case 'toggle':
-            buildToggle();
+            if (!buildToggle(customId)) alert('Could not create Toggle!');
             break;
         case 'counter':
-            buildCounter();
+            if (!buildCounter(customId)) alert('Could not create Counter!');
             break;
         case 'clock':
             break;

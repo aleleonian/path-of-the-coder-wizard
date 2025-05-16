@@ -34,7 +34,7 @@ function getResetLabelString() {
 function getComponentParentName() {
     return `${CONTAINER_NAME_STRING_PREPEND}${randomString}`
 }
-function createCounter({ targetId, parentId }, initialState = 0, props = null) {
+function createCounter({ targetId, parentId, customComponentId }, initialState = 0, props = null) {
 
     let counterInstance, counterComponentId;
 
@@ -71,8 +71,10 @@ function createCounter({ targetId, parentId }, initialState = 0, props = null) {
 
     if (props) config.props = props;
 
-    const genericComponent = createComponent(targetId, initialState, config);
-
+    const genericComponent = createComponent({ targetId, customComponentId }, initialState, config);
+    if (!genericComponent) {
+        return false;
+    }
     counterComponentId = genericComponent.componentId;
 
     const inc = () => {
@@ -161,8 +163,14 @@ function createCounterUI() {
     }
 
 }
-export function buildCounter() {
+export function buildCounter(customComponentId = false) {
     // create the component's UI.
+    if (customComponentId) {
+        const idsArray = window.myApp.registry.getById(customComponentId);
+        if (idsArray.length > 0) {
+            return false;
+        }
+    }
     randomString = getRandomUUID();
     const counterElement = createCounterUI();
     if (!counterElement) return false;
@@ -172,11 +180,14 @@ export function buildCounter() {
     window.myApp.counters = window.myApp.counters || {};
 
     // create the component
-    window.myApp.counters[getCounterName()] = createCounter({ targetId, parentId }, 0, {
+    const aCounter = createCounter({ targetId, parentId, customComponentId }, 0, {
         labels: {
             [getIncreaseLabelString()]: '+',
             [getDecreaseLabelString()]: '-',
             [getResetLabelString()]: 'R'
         }
-    })
+    });
+    if (!aCounter) alert('Could not create counter!');
+    else window.myApp.counters[getCounterName()] = aCounter;
+    return true;
 }

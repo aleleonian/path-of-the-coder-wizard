@@ -24,11 +24,11 @@ function getComponentParentName() {
     return `${CONTAINER_NAME_STRING_PREPEND}${randomString}`
 }
 
-function createToggleOnOff({ targetId = null, parentDiv = null }, initialState = false, props = null) {
+function createToggleOnOff({ targetId = null, parentDiv = null, customComponentId = null }, initialState = false, props = null) {
 
-    let timer, togglerInstance, togglerComponentId;
+    let timer, toggleInstance, toggleComponentId;
 
-    const togglerOnMount = (props) => {
+    const toggleOnMount = (props) => {
         if (props) {
             if (props.buttons) {
                 props.buttons.forEach(button => {
@@ -38,23 +38,23 @@ function createToggleOnOff({ targetId = null, parentDiv = null }, initialState =
                 })
             }
         }
-        window.myApp.eventBus.emit(window.myApp.EVENTS.COMPONENT_MOUNT, `Toggler mounted!`);
+        window.myApp.eventBus.emit(window.myApp.EVENTS.COMPONENT_MOUNT, `Toggle mounted!`);
 
-        timer = setInterval(() => window.myApp.eventBus.emit(window.myApp.EVENTS.LOG_EVENT, `Toggler timer in action!`), 1000);
+        timer = setInterval(() => window.myApp.eventBus.emit(window.myApp.EVENTS.LOG_EVENT, `Toggle timer in action!`), 1000);
 
-        componentRegistry.register(genericComponent.componentId, { type: "toggler", instance: togglerInstance });
+        componentRegistry.register(genericComponent.componentId, { type: "toggle", instance: toggleInstance });
 
     }
 
-    const togglerOnUpdate = (prevState, newState) => {
-        window.myApp.eventBus.emit(window.myApp.EVENTS.COMPONENT_UPDATE, `toggler updated! prevState: ${prevState}, newState: ${newState}`);
+    const toggleOnUpdate = (prevState, newState) => {
+        window.myApp.eventBus.emit(window.myApp.EVENTS.COMPONENT_UPDATE, `toggle updated! prevState: ${prevState}, newState: ${newState}`);
     }
 
-    const togglerOnUnmount = (props) => {
-        window.myApp.eventBus.emit(window.myApp.EVENTS.COMPONENT_UNMOUNT, `Toggler unmounted!`);
+    const toggleOnUnmount = (props) => {
+        window.myApp.eventBus.emit(window.myApp.EVENTS.COMPONENT_UNMOUNT, `Toggle unmounted!`);
         clearInterval(timer);
         document.getElementById(parentDiv).innerHTML = "";
-        componentRegistry.unregister(togglerComponentId);
+        componentRegistry.unregister(toggleComponentId);
 
     }
 
@@ -63,27 +63,29 @@ function createToggleOnOff({ targetId = null, parentDiv = null }, initialState =
     }
 
     const config = {
-        onMount: togglerOnMount,
-        onUpdate: togglerOnUpdate,
-        onUnmount: togglerOnUnmount,
+        onMount: toggleOnMount,
+        onUpdate: toggleOnUpdate,
+        onUnmount: toggleOnUnmount,
         renderFn
     }
 
     if (props) config.props = props;
 
-    const genericComponent = createComponent(targetId, initialState, config);
-
-    togglerComponentId = genericComponent.componentId;
+    const genericComponent = createComponent({ targetId, customComponentId }, initialState, config);
+    if (!genericComponent) {
+        return false;
+    }
+    toggleComponentId = genericComponent.componentId;
 
     const toggle = () => {
         genericComponent.setState(!genericComponent.getState());
     };
 
-    togglerInstance = { toggle, unmount: genericComponent.unmount, getState: genericComponent.getState, componentId: togglerComponentId };
+    toggleInstance = { toggle, unmount: genericComponent.unmount, getState: genericComponent.getState, componentId: toggleComponentId };
 
     genericComponent.mount();
 
-    return togglerInstance;
+    return toggleInstance;
 }
 function createToggleUI() {
     try {
@@ -111,17 +113,26 @@ function createToggleUI() {
     }
 
 }
-export function buildToggle() {
+export function buildToggle(customComponentId = false) {
     // create the component's UI.
+    if (customComponentId) {
+        const idsArray = window.myApp.registry.getById(customComponentId);
+        if (idsArray.length > 0) {
+            return false;
+        }
+    }
     randomString = getRandomUUID();
     const toggleElement = createToggleUI();
-    if (!createToggleUI()) return false;
+    if (!toggleElement) return false;
     document.getElementById('component-container').appendChild(toggleElement);
     const targetId = getTargetId();
     const parentId = getComponentParentName();
     if (!window.myApp.toggles) window.myApp.toggles = {};
     // create the component
-    window.myApp.toggles[getToggleName()] = createToggleOnOff({ targetId, parentId }, 0, {
+    const aToggle = createToggleOnOff({ targetId, parentId, customComponentId }, false, {
         buttons: [{ buttonId: getToggleButtonId(), buttonTextColor: 'white', buttonBackgroundColor: 'red', buttonText: 'Toggle!' }]
-    })
+    });
+    if (!aToggle) alert('Could not create toggle!');
+    else window.myApp.toggles[getToggleName()] = aToggle;
+    return true;
 }

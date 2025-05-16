@@ -7,6 +7,9 @@ export function createComponentRegistry() {
     function getByType(desiredType) {
         return getAll().filter(component => component.type === desiredType);
     }
+    function getById(desiredId) {
+        return getAll().filter(component => component.instance.componentId === desiredId);
+    }
 
     function broadcastToAll(command) {
         registry.forEach(component => {
@@ -78,7 +81,8 @@ export function createComponentRegistry() {
         unmountAll,
         broadcastToAll,
         sendMessageTo,
-        getByType
+        getByType,
+        getById
     }
 }
 

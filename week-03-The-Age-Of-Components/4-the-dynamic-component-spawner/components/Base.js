@@ -1,7 +1,7 @@
-export function createComponent(targetId = null, initialState = undefined, config = null) {
+export function createComponent({ targetId = null, customComponentId = null }, initialState = undefined, config = null) {
     let tid = targetId;
     let state = initialState;
-    let componentId = `Component-${crypto.randomUUID()}`;
+    let componentId = customComponentId ? customComponentId : `Component-${crypto.randomUUID()}`;
     let props = config.props ?? null;
 
     const mount = (targetId = tid) => {
@@ -36,17 +36,13 @@ export function createComponent(targetId = null, initialState = undefined, confi
         componentId = "";
     }
 
-    const getType = () => {
-        return props.type;
-    }
-    
     const render = () => {
 
         if (config.renderFn) {
-            document.getElementById(componentId).innerHTML = config.renderFn(state, props);
+            document.getElementById(targetId).innerHTML = config.renderFn(state, props);
         }
         else {
-            document.getElementById(componentId).innerHTML = getState();
+            document.getElementById(targetId).innerHTML = getState();
         }
     }
 
