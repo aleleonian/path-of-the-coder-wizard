@@ -35,7 +35,6 @@ function checkTime(i) {
 
 function createClock({ targetId = null, parentId = null, customComponentId = null }, initialState = false, props = null) {
 
-    debugger;
     
     let timer, clockInstance, clockComponentId, currentTime;
 
@@ -54,7 +53,6 @@ function createClock({ targetId = null, parentId = null, customComponentId = nul
         window.myApp.eventBus.emit(window.myApp.EVENTS.COMPONENT_UNMOUNT, `Clock unmounted!`);
         document.getElementById(parentId).innerHTML = "";
         componentRegistry.unregister(clockComponentId);
-        debugger;
         clearInterval(getTimer());
     }
 
@@ -82,7 +80,7 @@ function createClock({ targetId = null, parentId = null, customComponentId = nul
         genericComponent.setState(currentTime);
     }, 1000);
 
-    clockInstance = { unmount: genericComponent.unmount, getState: genericComponent.getState, componentId: clockComponentId };
+    clockInstance = { unmount: genericComponent.unmount, getState: genericComponent.getState, componentId: clockComponentId, parentId };
 
     genericComponent.mount();
 
@@ -124,7 +122,6 @@ export function buildClock(customComponentId = false) {
     const parentId = getComponentParentName();
     if (!window.myApp.clocks) window.myApp.clocks = {};
     // create the component
-    debugger;
     const aClock = createClock({ targetId, parentId, customComponentId }, false, null);
     if (!aClock) alert('Could not create clock!');
     else window.myApp.clocks[getClockName()] = aClock;
