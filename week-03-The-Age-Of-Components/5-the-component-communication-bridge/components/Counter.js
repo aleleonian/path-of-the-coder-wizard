@@ -1,6 +1,7 @@
 import { createComponent } from "./Base.js";
 import { getRandomUUID } from "../util.js";
 import { componentRegistry } from "./Registry.js";
+import { eventBus } from "../eventBus.js";
 
 let randomString;
 
@@ -36,7 +37,38 @@ function getComponentParentName() {
 }
 function createCounter({ targetId, parentId, customComponentId }, initialState = 0, props = null) {
 
-    let counterInstance, counterComponentId;
+    let counterInstance, counterComponentId, intervalId;
+
+    const start = () => {
+        if (intervalId) return;
+        intervalId = setInterval(() => {
+            inc();
+        }, 1000);
+    };
+
+    const stop = () => {
+        clearInterval(intervalId);
+        intervalId = null;
+    };
+
+    // const reset = () => {
+    //     stop();
+    //     count = 0;
+    //     updateDisplay();
+    // };
+
+    const handleResume = () => {
+        debugger;
+        start();
+    };
+    const handlePause = () => {
+        stop();
+    };
+
+    const handleReset = () => {
+        debugger;
+        reset();
+    }
 
     const counterOnMount = (props) => {
         if (props && props.labels) {
@@ -44,6 +76,10 @@ function createCounter({ targetId, parentId, customComponentId }, initialState =
                 document.getElementById(label).textContent = props.labels[label];
             });
         }
+
+        eventBus.on(window.myApp.EVENTS.RESUME_COUNTER, handleResume);
+        eventBus.on(window.myApp.EVENTS.PAUSE_COUNTER, handlePause);
+        eventBus.on(window.myApp.EVENTS.RESET_COUNTER, handleReset);
 
         window.myApp.eventBus.emit(window.myApp.EVENTS.COMPONENT_MOUNT, `Counter mounted!`);
     }
@@ -77,6 +113,14 @@ function createCounter({ targetId, parentId, customComponentId }, initialState =
     }
     counterComponentId = genericComponent.componentId;
 
+
+    document.getElementById(targetId)
+        .addEventListener('keydown', (e) => {
+            if (e.key === '+' || e.key === 'ArrowUp') inc();
+            if (e.key === '-' || e.key === 'ArrowDown') dec();
+            if (e.key === 'r' || e.key === 'R') reset();
+        });
+
     const inc = () => {
         genericComponent.setState(genericComponent.getState() + 1);
     };
@@ -87,14 +131,8 @@ function createCounter({ targetId, parentId, customComponentId }, initialState =
 
     const reset = () => {
         genericComponent.setState(0);
+        stop();
     };
-
-    document.getElementById(targetId)
-        .addEventListener('keydown', (e) => {
-            if (e.key === '+' || e.key === 'ArrowUp') inc();
-            if (e.key === '-' || e.key === 'ArrowDown') dec();
-            if (e.key === 'r' || e.key === 'R') reset();
-        });
 
     counterInstance = {
         inc,

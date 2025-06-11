@@ -1,6 +1,7 @@
 import { createComponent } from "./Base.js";
 import { getRandomUUID } from "../util.js";
 import { componentRegistry } from "./Registry.js";
+import { buildCounter } from "./Counter.js";
 
 let randomString;
 
@@ -26,7 +27,8 @@ function getComponentParentName() {
 
 function createToggleOnOff({ targetId = null, parentId = null, customComponentId = null }, initialState = false, props = null) {
 
-    let timer, toggleInstance, toggleComponentId;
+    // let timer, toggleInstance, toggleComponentId;
+    let toggleInstance, toggleComponentId;
 
     const toggleOnMount = (props) => {
         if (props) {
@@ -38,9 +40,23 @@ function createToggleOnOff({ targetId = null, parentId = null, customComponentId
                 })
             }
         }
+
+        // should create the counter and register it here if it does not exist
+        // should query the registry component first
+        const counterArray = componentRegistry.getByType('counter');
+
+        if (counterArray.length < 1) {
+            const buildCounterResult = buildCounter()
+
+            if (!buildCounterResult) {
+                // what here?
+                return false;
+            }
+        }
+
         window.myApp.eventBus.emit(window.myApp.EVENTS.COMPONENT_MOUNT, `Toggle mounted!`);
 
-        timer = setInterval(() => window.myApp.eventBus.emit(window.myApp.EVENTS.LOG_EVENT, `Toggle timer in action!`), 1000);
+        // timer = setInterval(() => window.myApp.eventBus.emit(window.myApp.EVENTS.LOG_EVENT, `Toggle timer in action!`), 1000);
 
         componentRegistry.register(genericComponent.componentId, { type: "toggle", instance: toggleInstance });
 
@@ -48,11 +64,14 @@ function createToggleOnOff({ targetId = null, parentId = null, customComponentId
 
     const toggleOnUpdate = (prevState, newState) => {
         window.myApp.eventBus.emit(window.myApp.EVENTS.COMPONENT_UPDATE, `toggle updated! prevState: ${prevState}, newState: ${newState}`);
+        // gotta tell the counter to start counting
+        if (newState) window.myApp.eventBus.emit(window.myApp.EVENTS.RESUME_COUNTER, `RESUMING COUNTER`);
+        else window.myApp.eventBus.emit(window.myApp.EVENTS.PAUSE_COUNTER, `PAUSING COUNTER`);
     }
 
     const toggleOnUnmount = (props) => {
         window.myApp.eventBus.emit(window.myApp.EVENTS.COMPONENT_UNMOUNT, `Toggle unmounted!`);
-        clearInterval(timer);
+        // clearInterval(timer);
         document.getElementById(parentId).innerHTML = "";
         componentRegistry.unregister(toggleComponentId);
 

@@ -5,13 +5,13 @@ import { componentRegistry } from './components/Registry.js';
 
 import { filterRCTable } from './components/RegisteredComponentsTable.js';
 
-import { buildCounter } from './components/Counter.js';
+// import { buildCounter } from './components/Counter.js';
 
 import { buildToggle } from './components/Toggle.js';
 
 import { buildClock } from './components/Clock.js';
 
-import { fillSelect, destroyComponent, clearActivityLog, resetComponent, resetAllCounters, killAll } from './util.js';
+import { fillSelect, destroyComponent, clearActivityLog, resetComponent, killAll } from './util.js';
 
 function summonComponent(e) {
     e.preventDefault();
@@ -21,9 +21,9 @@ function summonComponent(e) {
         case 'toggle':
             if (!buildToggle(customId)) alert('Could not create Toggle!');
             break;
-        case 'counter':
-            if (!buildCounter(customId)) alert('Could not create Counter!');
-            break;
+        // case 'counter':
+        //     if (!buildCounter(customId)) alert('Could not create Counter!');
+        //     break;
         case 'clock':
             if (!buildClock(customId)) alert('Could not create Clock!');
             break;
@@ -44,14 +44,14 @@ function main() {
     window.myApp.resetComponent = resetComponent;
     window.myApp.clearActivityLog = clearActivityLog;
     window.myApp.filterRCTable = filterRCTable;
-    window.myApp.resetAllCounters = resetAllCounters;
     window.myApp.killAll = killAll;
     window.myApp.registry = componentRegistry;
     window.myApp.componentContainerId = 'component-container';
     window.myApp.registryTableId = 'registry-table';
 
     document.getElementById('component-type')?.focus();
-    const validOptions = ['Counter', 'Toggle', 'Clock'];
+    const validOptions = ['Toggle', 'Clock'];
+    // const validOptions = ['Counter', 'Toggle', 'Clock'];
     fillSelect('component-type-select', validOptions);
     fillSelect('component-type-filter', validOptions);
 

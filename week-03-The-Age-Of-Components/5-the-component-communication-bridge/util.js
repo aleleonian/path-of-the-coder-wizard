@@ -8,10 +8,6 @@ export function appendToLog(message) {
     logDisplayHandle.scrollTop = logDisplayHandle.scrollHeight;
 }
 
-export function resetAllCounters() {
-    window.myApp.registry.broadcastToAll('reset');
-}
-
 export function killAll() {
     if (!confirm('Are you sure you want to destroy all components?')) return;
     window.myApp.registry.broadcastToAll('unmount');
