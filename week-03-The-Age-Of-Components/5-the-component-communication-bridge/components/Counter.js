@@ -51,14 +51,7 @@ function createCounter({ targetId, parentId, customComponentId }, initialState =
         intervalId = null;
     };
 
-    // const reset = () => {
-    //     stop();
-    //     count = 0;
-    //     updateDisplay();
-    // };
-
     const handleResume = () => {
-        debugger;
         start();
     };
     const handlePause = () => {
@@ -66,7 +59,6 @@ function createCounter({ targetId, parentId, customComponentId }, initialState =
     };
 
     const handleReset = () => {
-        debugger;
         reset();
     }
 
@@ -90,6 +82,9 @@ function createCounter({ targetId, parentId, customComponentId }, initialState =
 
     const counterOnUnmount = () => {
         window.myApp.eventBus.emit(window.myApp.EVENTS.COMPONENT_UNMOUNT, `Counter unmounted!`);
+        eventBus.off(window.myApp.EVENTS.RESUME_COUNTER, handleResume);
+        eventBus.off(window.myApp.EVENTS.PAUSE_COUNTER, handlePause);
+        eventBus.off(window.myApp.EVENTS.RESET_COUNTER, handleReset);
     }
 
     const renderFn = (state, props) => {
